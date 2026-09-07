@@ -1,0 +1,1754 @@
+user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ pip install transformers datasets accelerate scikit-learn pandas numpy wandb audiomentations
+error: externally-managed-environment
+
+× This environment is externally managed
+╰─> To install Python packages system-wide, try apt install
+    python3-xyz, where xyz is the package you are trying to
+    install.
+    
+    If you wish to install a non-Debian-packaged Python package,
+    create a virtual environment using python3 -m venv path/to/venv.
+    Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make
+    sure you have python3-full installed.
+    
+    If you wish to install a non-Debian packaged Python application,
+    it may be easiest to use pipx install xyz, which will manage a
+    virtual environment for you. Make sure you have pipx installed.
+    
+    See /usr/share/doc/python3.12/README.venv for more information.
+
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.
+user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ which python
+user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ which pip
+/usr/bin/pip
+user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip --version
+Command 'python' not found, did you mean:
+  command 'python3' from deb python3
+  command 'python' from deb python-is-python3
+user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda activate r7a_group8
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip --version
+pip 26.2.1 from /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/pip (python 3.12)
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip install transformers datasets accelerate scikit-learn pandas numpy wandb audiomentations
+Collecting transformers
+  Downloading transformers-5.16.1-py3-none-any.whl.metadata (32 kB)
+Collecting datasets
+  Downloading datasets-5.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting accelerate
+  Downloading accelerate-1.14.0-py3-none-any.whl.metadata (19 kB)
+Collecting scikit-learn
+  Downloading scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)
+Collecting pandas
+  Downloading pandas-3.0.5-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+Requirement already satisfied: numpy in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (2.0.1)
+Collecting wandb
+  Downloading wandb-0.29.0-py3-none-manylinux_2_28_x86_64.whl.metadata (11 kB)
+Collecting audiomentations
+  Downloading audiomentations-0.43.1-py3-none-any.whl.metadata (11 kB)
+Collecting huggingface-hub<2.0,>=1.5.0 (from transformers)
+  Downloading huggingface_hub-1.30.0-py3-none-any.whl.metadata (16 kB)
+Requirement already satisfied: packaging>=20.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from transformers) (26.3)
+Requirement already satisfied: pyyaml>=5.1 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from transformers) (6.0.3)
+Collecting regex>=2025.10.22 (from transformers)
+  Downloading regex-2026.9.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers<0.24.0,>=0.23.1 (from transformers)
+  Downloading tokenizers-0.23.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+Collecting typer (from transformers)
+  Downloading typer-0.27.2-py3-none-any.whl.metadata (16 kB)
+Collecting safetensors>=0.8.0 (from transformers)
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Collecting tqdm>=4.60 (from transformers)
+  Downloading tqdm-4.70.0-py3-none-any.whl.metadata (57 kB)
+Collecting click<9.0.0,>=8.4.2 (from huggingface-hub<2.0,>=1.5.0->transformers)
+  Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: filelock>=3.10.0 in /home/user/.local/lib/python3.12/site-packages (from huggingface-hub<2.0,>=1.5.0->transformers) (3.25.2)
+Collecting fsspec>=2023.5.0 (from huggingface-hub<2.0,>=1.5.0->transformers)
+  Downloading fsspec-2026.7.0-py3-none-any.whl.metadata (10 kB)
+Collecting hf-xet<2.0.0,>=1.5.2 (from huggingface-hub<2.0,>=1.5.0->transformers)
+  Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting httpx<1,>=0.23.0 (from huggingface-hub<2.0,>=1.5.0->transformers)
+  Using cached httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Requirement already satisfied: typing-extensions>=4.1.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from huggingface-hub<2.0,>=1.5.0->transformers) (4.16.0)
+Collecting anyio (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers)
+  Downloading anyio-4.15.0-py3-none-any.whl.metadata (4.7 kB)
+Requirement already satisfied: certifi in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers) (2026.7.22)
+Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers)
+  Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Requirement already satisfied: idna in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers) (3.18)
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.5.0->transformers)
+  Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting pyarrow>=21.0.0 (from datasets)
+  Downloading pyarrow-25.0.1-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (3.0 kB)
+Collecting dill<0.4.2,>=0.3.0 (from datasets)
+  Downloading dill-0.4.1-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: requests>=2.32.2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets) (2.34.2)
+Collecting xxhash (from datasets)
+  Downloading xxhash-4.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (17 kB)
+Collecting multiprocess<0.70.20 (from datasets)
+  Downloading multiprocess-0.70.19-py312-none-any.whl.metadata (7.5 kB)
+Collecting fsspec>=2023.5.0 (from huggingface-hub<2.0,>=1.5.0->transformers)
+  Downloading fsspec-2026.6.0-py3-none-any.whl.metadata (10 kB)
+Collecting aiohttp!=4.0.0a0,!=4.0.0a1 (from fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Downloading aiohttp-3.14.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+Collecting psutil (from accelerate)
+  Using cached psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Requirement already satisfied: torch>=2.0.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from accelerate) (2.5.1)
+Collecting scipy>=1.10.0 (from scikit-learn)
+  Downloading scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting joblib>=1.4.0 (from scikit-learn)
+  Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting narwhals>=2.0.1 (from scikit-learn)
+  Downloading narwhals-2.25.0-py3-none-any.whl.metadata (15 kB)
+Collecting threadpoolctl>=3.5.0 (from scikit-learn)
+  Using cached threadpoolctl-3.6.0-py3-none-any.whl.metadata (13 kB)
+Collecting python-dateutil>=2.8.2 (from pandas)
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting opentelemetry-api>=1.43.0 (from wandb)
+  Downloading opentelemetry_api-1.44.0-py3-none-any.whl.metadata (1.4 kB)
+Requirement already satisfied: platformdirs in /home/user/.local/lib/python3.12/site-packages (from wandb) (4.9.4)
+Collecting protobuf!=5.28.0,!=5.29.0,<8,>=5 (from wandb)
+  Downloading protobuf-7.36.1-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+Collecting pydantic<3,>=2.6 (from wandb)
+  Downloading pydantic-2.13.5-py3-none-any.whl.metadata (110 kB)
+Collecting sentry-sdk>=2.0.0 (from wandb)
+  Downloading sentry_sdk-2.68.1-py3-none-any.whl.metadata (11 kB)
+Collecting annotated-types>=0.6.0 (from pydantic<3,>=2.6->wandb)
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.46.5 (from pydantic<3,>=2.6->wandb)
+  Downloading pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+Collecting typing-inspection>=0.4.2 (from pydantic<3,>=2.6->wandb)
+  Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: charset_normalizer<4,>=2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from requests>=2.32.2->datasets) (3.4.7)
+Requirement already satisfied: urllib3<3,>=1.26 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from requests>=2.32.2->datasets) (2.7.0)
+Collecting numpy-minmax<1,>=0.3.0 (from audiomentations)
+  Downloading numpy_minmax-0.6.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (4.1 kB)
+Collecting numpy-rms<1,>=0.4.2 (from audiomentations)
+  Downloading numpy_rms-0.7.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+Collecting librosa!=0.10.0,<0.12.0,>=0.8.0 (from audiomentations)
+  Downloading librosa-0.11.0-py3-none-any.whl.metadata (8.7 kB)
+Collecting python-stretch<1,>=0.3.1 (from audiomentations)
+  Downloading python_stretch-0.3.1-cp312-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.7 kB)
+Collecting soxr<1.0.0,>=0.3.2 (from audiomentations)
+  Downloading soxr-0.5.0.post1-cp312-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.6 kB)
+Collecting audioread>=2.1.9 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading audioread-3.1.0-py3-none-any.whl.metadata (9.0 kB)
+Collecting numba>=0.51.0 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading numba-0.67.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.7 kB)
+Collecting decorator>=4.3.0 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading decorator-5.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting soundfile>=0.12.1 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading soundfile-0.14.0-py2.py3-none-manylinux_2_28_x86_64.whl.metadata (18 kB)
+Collecting pooch>=1.1 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading pooch-1.9.0-py3-none-any.whl.metadata (10 kB)
+Collecting lazy_loader>=0.1 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading lazy_loader-0.5-py3-none-any.whl.metadata (5.9 kB)
+Collecting msgpack>=1.0 (from librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading msgpack-1.2.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+Requirement already satisfied: cffi>=1.0.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from numpy-minmax<1,>=0.3.0->audiomentations) (2.1.1)
+Collecting aiohappyeyeballs>=2.5.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Downloading aiohappyeyeballs-2.7.1-py3-none-any.whl.metadata (5.9 kB)
+Collecting aiosignal>=1.4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Using cached aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting attrs>=17.3.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Using cached attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting frozenlist>=1.1.1 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Using cached frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)
+Collecting multidict<7.0,>=4.5 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Using cached multidict-6.7.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
+Collecting propcache>=0.2.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Downloading propcache-0.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (16 kB)
+Collecting yarl<2.0,>=1.17.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.6.0,>=2023.1.0->datasets)
+  Downloading yarl-1.24.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (103 kB)
+Requirement already satisfied: pycparser in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from cffi>=1.0.0->numpy-minmax<1,>=0.3.0->audiomentations) (3.0)
+Collecting cloudpickle>=3.0 (from joblib>=1.4.0->scikit-learn)
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Collecting llvmlite<0.50,>=0.49.0dev0 (from numba>=0.51.0->librosa!=0.10.0,<0.12.0,>=0.8.0->audiomentations)
+  Downloading llvmlite-0.49.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.0 kB)
+Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas)
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Requirement already satisfied: setuptools in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from torch>=2.0.0->accelerate) (83.0.0)
+Collecting sympy==1.13.1 (from torch>=2.0.0->accelerate)
+  Downloading sympy-1.13.1-py3-none-any.whl.metadata (12 kB)
+Requirement already satisfied: networkx in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from torch>=2.0.0->accelerate) (3.6.1)
+Requirement already satisfied: jinja2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from torch>=2.0.0->accelerate) (3.1.6)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from sympy==1.13.1->torch>=2.0.0->accelerate) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from jinja2->torch>=2.0.0->accelerate) (3.0.3)
+Collecting shellingham>=1.3.0 (from typer->transformers)
+  Using cached shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting rich>=13.8.0 (from typer->transformers)
+  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting annotated-doc>=0.0.2 (from typer->transformers)
+  Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer->transformers)
+  Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer->transformers)
+  Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers)
+  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading transformers-5.16.1-py3-none-any.whl (12.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.1/12.1 MB 31.2 MB/s  0:00:00
+Downloading huggingface_hub-1.30.0-py3-none-any.whl (796 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 796.8/796.8 kB 5.5 MB/s  0:00:00
+Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 25.1 MB/s  0:00:00
+Using cached httpx-0.28.1-py3-none-any.whl (73 kB)
+Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading tokenizers-0.23.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 20.3 MB/s  0:00:00
+Downloading datasets-5.0.1-py3-none-any.whl (559 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 559.1/559.1 kB 3.0 MB/s  0:00:00
+Downloading dill-0.4.1-py3-none-any.whl (120 kB)
+Downloading fsspec-2026.6.0-py3-none-any.whl (203 kB)
+Downloading multiprocess-0.70.19-py312-none-any.whl (150 kB)
+Downloading accelerate-1.14.0-py3-none-any.whl (389 kB)
+Downloading scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (9.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.1/9.1 MB 31.9 MB/s  0:00:00
+Downloading pandas-3.0.5-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (11.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.0/11.0 MB 39.2 MB/s  0:00:00
+Downloading wandb-0.29.0-py3-none-manylinux_2_28_x86_64.whl (29.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 29.8/29.8 MB 42.7 MB/s  0:00:00
+Downloading protobuf-7.36.1-cp310-abi3-manylinux2014_x86_64.whl (343 kB)
+Downloading pydantic-2.13.5-py3-none-any.whl (472 kB)
+Downloading pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 13.3 MB/s  0:00:00
+Downloading audiomentations-0.43.1-py3-none-any.whl (86 kB)
+Downloading librosa-0.11.0-py3-none-any.whl (260 kB)
+Downloading numpy_minmax-0.6.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (27 kB)
+Downloading numpy_rms-0.7.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (17 kB)
+Downloading python_stretch-0.3.1-cp312-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (109 kB)
+Downloading scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 36.6 MB/s  0:00:00
+Downloading soxr-0.5.0.post1-cp312-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (248 kB)
+Downloading aiohttp-3.14.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 12.0 MB/s  0:00:00
+Using cached multidict-6.7.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (256 kB)
+Downloading yarl-1.24.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (109 kB)
+Downloading aiohappyeyeballs-2.7.1-py3-none-any.whl (15 kB)
+Using cached aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Using cached attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading audioread-3.1.0-py3-none-any.whl (23 kB)
+Downloading decorator-5.3.1-py3-none-any.whl (10 kB)
+Using cached frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (242 kB)
+Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading joblib-1.6.0-py3-none-any.whl (306 kB)
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Downloading lazy_loader-0.5-py3-none-any.whl (8.0 kB)
+Downloading msgpack-1.2.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (420 kB)
+Downloading narwhals-2.25.0-py3-none-any.whl (467 kB)
+Downloading numba-0.67.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.9/3.9 MB 20.5 MB/s  0:00:00
+Downloading llvmlite-0.49.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (59.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.9/59.9 MB 44.0 MB/s  0:00:01
+Downloading opentelemetry_api-1.44.0-py3-none-any.whl (60 kB)
+Downloading pooch-1.9.0-py3-none-any.whl (67 kB)
+Downloading propcache-0.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (61 kB)
+Downloading pyarrow-25.0.1-cp312-cp312-manylinux_2_28_x86_64.whl (50.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 50.1/50.1 MB 44.4 MB/s  0:00:01
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading regex-2026.9.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (801 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 802.0/802.0 kB 5.2 MB/s  0:00:00
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading sentry_sdk-2.68.1-py3-none-any.whl (520 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading soundfile-0.14.0-py2.py3-none-manylinux_2_28_x86_64.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 10.2 MB/s  0:00:00
+Using cached threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
+Downloading sympy-1.13.1-py3-none-any.whl (6.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.2/6.2 MB 25.3 MB/s  0:00:00
+Downloading tqdm-4.70.0-py3-none-any.whl (80 kB)
+Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Downloading xxhash-4.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (261 kB)
+Downloading anyio-4.15.0-py3-none-any.whl (131 kB)
+Using cached psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Downloading typer-0.27.2-py3-none-any.whl (123 kB)
+Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 6.1 MB/s  0:00:00
+Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Using cached shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Installing collected packages: xxhash, typing-inspection, tqdm, threadpoolctl, sympy, soxr, six, shellingham, sentry-sdk, scipy, safetensors, regex, python-stretch, pygments, pydantic-core, pyarrow, psutil, protobuf, propcache, opentelemetry-api, narwhals, multidict, msgpack, mdurl, llvmlite, lazy_loader, hf-xet, h11, fsspec, frozenlist, dill, decorator, cloudpickle, click, audioread, attrs, anyio, annotated-types, annotated-doc, aiohappyeyeballs, yarl, soundfile, python-dateutil, pydantic, pooch, numpy-rms, numpy-minmax, numba, multiprocess, markdown-it-py, joblib, httpcore, aiosignal, wandb, scikit-learn, rich, pandas, httpx, aiohttp, typer, librosa, huggingface-hub, tokenizers, datasets, audiomentations, accelerate, transformers
+  Attempting uninstall: sympy
+    Found existing installation: sympy 1.14.0
+    Uninstalling sympy-1.14.0:
+      Successfully uninstalled sympy-1.14.0
+Successfully installed accelerate-1.14.0 aiohappyeyeballs-2.7.1 aiohttp-3.14.3 aiosignal-1.4.0 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.0 attrs-26.1.0 audiomentations-0.43.1 audioread-3.1.0 click-8.5.0 cloudpickle-3.1.2 datasets-5.0.1 decorator-5.3.1 dill-0.4.1 frozenlist-1.8.0 fsspec-2026.6.0 h11-0.16.0 hf-xet-1.6.0 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.30.0 joblib-1.6.0 lazy_loader-0.5 librosa-0.11.0 llvmlite-0.49.0 markdown-it-py-4.2.0 mdurl-0.1.2 msgpack-1.2.2 multidict-6.7.1 multiprocess-0.70.19 narwhals-2.25.0 numba-0.67.0 numpy-minmax-0.6.0 numpy-rms-0.7.0 opentelemetry-api-1.44.0 pandas-3.0.5 pooch-1.9.0 propcache-0.5.2 protobuf-7.36.1 psutil-7.2.2 pyarrow-25.0.1 pydantic-2.13.5 pydantic-core-2.46.5 pygments-2.21.0 python-dateutil-2.9.0.post0 python-stretch-0.3.1 regex-2026.9.3 rich-15.0.0 safetensors-0.8.0 scikit-learn-1.9.0 scipy-1.18.1 sentry-sdk-2.68.1 shellingham-1.5.4 six-1.17.0 soundfile-0.14.0 soxr-0.5.0.post1 sympy-1.13.1 threadpoolctl-3.6.0 tokenizers-0.23.2 tqdm-4.70.0 transformers-5.16.1 typer-0.27.2 typing-inspection-0.4.4 wandb-0.29.0 xxhash-4.0.1 yarl-1.24.5
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torch, transformers, datasets, sklearn, pandas, numpy, wandb, audiomentations; print('All imports OK')"
+All imports OK
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python hyperparam_tuning_slp_audio.py --help
+usage: hyperparam_tuning_slp_audio.py [-h] --target_column
+                                      {disorder_class,disorder_type,disorder_symptom}
+                                      [--model_checkpoint MODEL_CHECKPOINT]
+                                      [--wandb_project WANDB_PROJECT]
+                                      [--exclude_healthy EXCLUDE_HEALTHY]
+                                      [--aug_male AUG_MALE]
+                                      [--aug_female AUG_FEMALE]
+                                      [--epochs EPOCHS]
+                                      [--batch_size BATCH_SIZE]
+                                      [--learning_rate LEARNING_RATE]
+                                      [--gradient_accumulation GRADIENT_ACCUMULATION]
+                                      [--oversample_mult OVERSAMPLE_MULT]
+                                      [--pitch_prob PITCH_PROB]
+                                      [--noise_prob NOISE_PROB]
+                                      [--pitch_shift_min PITCH_SHIFT_MIN]
+                                      [--pitch_shift_max PITCH_SHIFT_MAX]
+                                      [--random_seed RANDOM_SEED]
+                                      [--doTest DOTEST]
+
+Train Audio Classifier (Sweep Ready)
+
+options:
+  -h, --help            show this help message and exit
+  --target_column {disorder_class,disorder_type,disorder_symptom}
+                        The column to classify
+  --model_checkpoint MODEL_CHECKPOINT
+                        HuggingFace model hub checkpoint
+  --wandb_project WANDB_PROJECT
+                        W&B Project name
+  --exclude_healthy EXCLUDE_HEALTHY
+                        If True, removes 'typically_developing' samples from
+                        the dataset
+  --aug_male AUG_MALE   Apply augmentations to Male samples
+  --aug_female AUG_FEMALE
+                        Apply augmentations to Female samples
+  --epochs EPOCHS
+  --batch_size BATCH_SIZE
+  --learning_rate LEARNING_RATE
+  --gradient_accumulation GRADIENT_ACCUMULATION
+  --oversample_mult OVERSAMPLE_MULT
+                        Max duplication factor for balancing
+  --pitch_prob PITCH_PROB
+                        Probability of applying pitch shift (if gender
+                        matches)
+  --noise_prob NOISE_PROB
+                        Probability of applying Gaussian noise
+  --pitch_shift_min PITCH_SHIFT_MIN
+                        Minimum absolute semitones to shift
+  --pitch_shift_max PITCH_SHIFT_MAX
+                        Maximum absolute semitones to shift
+  --random_seed RANDOM_SEED
+                        Seed for Run (Init/Shuffle/Val-Split)
+  --doTest DOTEST       should evaluate on test?
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python hyperparam_tuning_slp_audio.py --help
+usage: hyperparam_tuning_slp_audio.py [-h] --target_column
+                                      {disorder_class,disorder_type,disorder_symptom}
+                                      [--model_checkpoint MODEL_CHECKPOINT]
+                                      [--wandb_project WANDB_PROJECT]
+                                      [--exclude_healthy EXCLUDE_HEALTHY]
+                                      [--aug_male AUG_MALE]
+                                      [--aug_female AUG_FEMALE]
+                                      [--epochs EPOCHS]
+                                      [--batch_size BATCH_SIZE]
+                                      [--learning_rate LEARNING_RATE]
+                                      [--gradient_accumulation GRADIENT_ACCUMULATION]
+                                      [--oversample_mult OVERSAMPLE_MULT]
+                                      [--pitch_prob PITCH_PROB]
+                                      [--noise_prob NOISE_PROB]
+                                      [--pitch_shift_min PITCH_SHIFT_MIN]
+                                      [--pitch_shift_max PITCH_SHIFT_MAX]
+                                      [--random_seed RANDOM_SEED]
+                                      [--doTest DOTEST]
+
+^C--doTest DOTEST       should evaluate on test?le/Val-Split)ef genders from
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torch; print(torch.cuda.get_device_name(0)); print(round(torch.cuda.get_device_properties(0).total_memory/1024**3,2), 'GB VRAM')"
+Quadro P2200
+4.93 GB VRAM
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python hyperparam_tuning_slp_audio.py \
+  --target_column disorder_class \
+  --model_checkpoint facebook/wav2vec2-base \
+  --epochs 1 \
+  --batch_size 1 \
+  --gradient_accumulation 8 \
+  --oversample_mult 1 \
+  --pitch_prob 0 \
+  --noise_prob 0
+--- RUN CONFIGURATION ---
+
+[STANDARD LOSS]
+
+Test Split Seed (Fixed): 42
+Run Seed (Variable):     3435
+-------------------------
+README.md: 100%|██████████████████████████████| 555/555 [00:00<00:00, 1.42MB/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/train-00000-of-00001.parquet: downloading bytes: █████| 30.6MB, 2.56MB/s  
+data/train-00000-of-00001.parquet: reconstructing file: 100%|█| 30.7MB / 30.7MB
+Generating train split: 100%|██████| 926/926 [00:00<00:00, 13580.44 examples/s]
+Extracting Speaker IDs...
+Map: 100%|█████████████████████████| 926/926 [00:00<00:00, 16068.00 examples/s]
+Filter:   0%|                                   | 0/926 [00:00<?, ? examples/s]
+Traceback (most recent call last):
+  File "/home/user/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology/hyperparam_tuning_slp_audio.py", line 138, in <module>
+    dataset = dataset.filter(lambda x: x[args.target_column] is not None)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 576, in wrapper
+    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/fingerprint.py", line 468, in wrapper
+    out = func(dataset, *args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 4253, in filter
+    indices = self.map(
+              ^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 576, in wrapper
+    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3633, in map
+    for rank, done, content in Dataset._map_single(**unprocessed_kwargs):
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3998, in _map_single
+    for i, batch in iter_outputs(shard_iterable):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3951, in iter_outputs
+    yield i, apply_function(example, i, offset=offset)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3872, in apply_function
+    processed_inputs = function(*fn_args, *additional_args, **fn_kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 7332, in get_indices_from_mask_function
+    num_examples = len(batch[next(iter(batch.keys()))])
+                       ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 301, in __getitem__
+    value = self.format(key)
+            ^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 401, in format
+    return self.formatter.format_column(self.pa_table.select([key]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 481, in format_column
+    column = self.python_features_decoder.decode_column(column, pa_table.column_names[0])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 244, in decode_column
+    self.features.decode_column(column, column_name, token_per_repo_id=self.token_per_repo_id)
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/features.py", line 2247, in decode_column
+    decode_nested_example(self[column_name], value, token_per_repo_id=token_per_repo_id)
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/features.py", line 1524, in decode_nested_example
+    return schema.decode_example(obj, token_per_repo_id=token_per_repo_id) if obj is not None else None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/audio.py", line 186, in decode_example
+    raise ImportError("To support decoding audio data, please install 'torchcodec'.")
+ImportError: To support decoding audio data, please install 'torchcodec'.
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip install torchcodec
+Collecting torchcodec
+  Downloading torchcodec-0.16.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.7 kB)
+Downloading torchcodec-0.16.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (9.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.5/9.5 MB 27.8 MB/s  0:00:00
+Installing collected packages: torchcodec
+Successfully installed torchcodec-0.16.0
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torchcodec; print('torchcodec OK')"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/__init__.py", line 13, in <module>
+    from . import decoders, encoders, samplers, transforms  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/__init__.py", line 7, in <module>
+    from .._core import AudioStreamMetadata, VideoStreamMetadata
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/_core/__init__.py", line 8, in <module>
+    from ._metadata import (
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/_core/_metadata.py", line 15, in <module>
+    from torchcodec._core.ops import (
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/_core/ops.py", line 35, in <module>
+    load_image_library()
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 71, in load_image_library
+    torch.ops.load_library(image_library_path)
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torch/_ops.py", line 1350, in load_library
+    ctypes.CDLL(path)
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libnvrtc.so.13: cannot open shared object file: No such file or directory
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip uninstall torchcodec -y
+Found existing installation: torchcodec 0.16.0
+Uninstalling torchcodec-0.16.0:
+  Successfully uninstalled torchcodec-0.16.0
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip install "torchcodec==0.1"
+Collecting torchcodec==0.1
+  Downloading TorchCodec-0.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+Downloading TorchCodec-0.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (747 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 747.9/747.9 kB 3.8 MB/s  0:00:00
+Installing collected packages: torchcodec
+Successfully installed torchcodec-0.1.0
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torchcodec; print('torchcodec OK')"
+torchcodec OK
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python hyperparam_tuning_slp_audio.py \
+  --target_column disorder_class \
+  --model_checkpoint facebook/wav2vec2-base \
+  --epochs 1 \
+  --batch_size 1 \
+  --gradient_accumulation 8 \
+  --oversample_mult 1 \
+  --pitch_prob 0 \
+  --noise_prob 0
+--- RUN CONFIGURATION ---
+
+[STANDARD LOSS]
+
+Test Split Seed (Fixed): 42
+Run Seed (Variable):     2875
+-------------------------
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Extracting Speaker IDs...
+Map: 100%|█████████████████████████| 926/926 [00:00<00:00, 16069.07 examples/s]
+Filter:   0%|                                   | 0/926 [00:00<?, ? examples/s]
+Traceback (most recent call last):
+  File "/home/user/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology/hyperparam_tuning_slp_audio.py", line 138, in <module>
+    dataset = dataset.filter(lambda x: x[args.target_column] is not None)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 576, in wrapper
+    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/fingerprint.py", line 468, in wrapper
+    out = func(dataset, *args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 4253, in filter
+    indices = self.map(
+              ^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 576, in wrapper
+    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3633, in map
+    for rank, done, content in Dataset._map_single(**unprocessed_kwargs):
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3998, in _map_single
+    for i, batch in iter_outputs(shard_iterable):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3951, in iter_outputs
+    yield i, apply_function(example, i, offset=offset)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 3872, in apply_function
+    processed_inputs = function(*fn_args, *additional_args, **fn_kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/arrow_dataset.py", line 7332, in get_indices_from_mask_function
+    num_examples = len(batch[next(iter(batch.keys()))])
+                       ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 301, in __getitem__
+    value = self.format(key)
+            ^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 401, in format
+    return self.formatter.format_column(self.pa_table.select([key]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 481, in format_column
+    column = self.python_features_decoder.decode_column(column, pa_table.column_names[0])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/formatting/formatting.py", line 244, in decode_column
+    self.features.decode_column(column, column_name, token_per_repo_id=self.token_per_repo_id)
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/features.py", line 2247, in decode_column
+    decode_nested_example(self[column_name], value, token_per_repo_id=token_per_repo_id)
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/features.py", line 1524, in decode_nested_example
+    return schema.decode_example(obj, token_per_repo_id=token_per_repo_id) if obj is not None else None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/audio.py", line 184, in decode_example
+    from ._torchcodec import AudioDecoder
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/datasets/features/_torchcodec.py", line 2, in <module>
+    from torchcodec.decoders import AudioDecoder as _AudioDecoder
+ImportError: cannot import name 'AudioDecoder' from 'torchcodec.decoders' (/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/__init__.py). Did you mean: 'VideoDecoder'?
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import datasets, torchcodec, torch; print('datasets:', datasets.__version__); print('torchcodec:', torchcodec.__version__); print('torch:', torch.__version__)"
+datasets: 5.0.1
+torchcodec: 0.1.0
+torch: 2.5.1
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip uninstall torchcodec -y
+Found existing installation: TorchCodec 0.1.0
+Uninstalling TorchCodec-0.1.0:
+  Successfully uninstalled TorchCodec-0.1.0
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip install "torchcodec==0.1.1" --index-url https://download.pytorch.org/whl/cu121
+Looking in indexes: https://download.pytorch.org/whl/cu121
+Collecting torchcodec==0.1.1
+  Downloading TorchCodec-0.1.1%2Bcu121-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+Downloading TorchCodec-0.1.1%2Bcu121-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (636 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 636.4/636.4 kB 1.2 MB/s  0:00:00
+Installing collected packages: torchcodec
+Successfully installed torchcodec-0.1.1+cu121
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "from torchcodec.decoders import AudioDecoder; print('AudioDecoder OK')"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/__init__.py", line 10, in <module>
+    from . import decoders, samplers  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/__init__.py", line 7, in <module>
+    from ._core import VideoStreamMetadata
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/__init__.py", line 8, in <module>
+    from ._metadata import (
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/_metadata.py", line 15, in <module>
+    from torchcodec.decoders._core.video_decoder_ops import (
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/video_decoder_ops.py", line 59, in <module>
+    load_torchcodec_extension()
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/video_decoder_ops.py", line 44, in load_torchcodec_extension
+    raise RuntimeError(
+RuntimeError: Could not load libtorchcodec. Likely causes:
+          1. FFmpeg is not properly installed in your environment. We support
+             versions 4, 5, 6 and 7.
+          2. The PyTorch version (2.5.1) is not compatible with
+             this version of TorchCodec. Refer to the version compatibility
+             table:
+             https://github.com/pytorch/torchcodec?tab=readme-ov-file#installing-torchcodec.
+          3. Another runtime dependency; see exceptions below.
+        The following exceptions were raised as we tried to load libtorchcodec:
+        
+[start of libtorchcodec loading traceback]
+libavutil.so.59: cannot open shared object file: No such file or directory
+libavutil.so.58: cannot open shared object file: No such file or directory
+libavutil.so.57: cannot open shared object file: No such file or directory
+
+[end of libtorchcodec loading traceback].
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda install -c conda-forge ff
+
+2 channel Terms of Service accepted
+Channels:
+ - conda-forge
+ - defaults
+Platform: linux-64
+Collecting package metadata (repodata.json): / 
+done
+Solving environment: failed
+
+PackagesNotFoundError: The following packages are not available from current channels:
+
+  - ff
+
+Current channels:
+
+  - https://conda.anaconda.org/conda-forge
+  - defaults
+
+To search for alternate channels that may provide the conda package you're
+looking for, navigate to
+
+    https://anaconda.org
+
+and use the search bar at the top of the page.
+
+
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda install -c conda-forge ffmpeg -y
+2 channel Terms of Service accepted
+Channels:
+ - conda-forge
+ - defaults
+Platform: linux-64
+Collecting package metadata (repodata.json): done
+Solving environment: done
+
+
+==> WARNING: A newer version of conda exists. <==
+    current version: 26.1.1
+    latest version: 26.7.1
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+
+## Package Plan ##
+
+  environment location: /home/user/miniconda3/envs/r7a_group8
+
+  added / updated specs:
+    - ffmpeg
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    openssl-3.6.4              |       h781a0a9_0         3.1 MB  conda-forge
+    ------------------------------------------------------------
+                                           Total:         3.1 MB
+
+The following packages will be UPDATED:
+
+  openssl               pkgs/main::openssl-3.5.8-h1b28b03_0 --> conda-forge::openssl-3.6.4-h781a0a9_0 
+
+
+
+Downloading and Extracting Packages:
+                                                                                
+Preparing transaction: done
+Verifying transaction: done
+Executing transaction: done
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ ffmpeg -version
+ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
+built with gcc 7.3.0 (crosstool-NG 1.23.0.449-a04d0)
+configuration: --prefix=/home/user/miniconda3/envs/r7a_group8 --cc=/tmp/build/80754af9/ffmpeg_1587154242452/_build_env/bin/x86_64-conda_cos6-linux-gnu-cc --disable-doc --enable-avresample --enable-gmp --enable-hardcoded-tables --enable-libfreetype --enable-libvpx --enable-pthreads --enable-libopus --enable-postproc --enable-pic --enable-pthreads --enable-shared --enable-static --enable-version3 --enable-zlib --enable-libmp3lame --disable-nonfree --enable-gpl --enable-gnutls --disable-openssl --enable-libopenh264 --enable-libx264
+libavutil      56. 31.100 / 56. 31.100
+libavcodec     58. 54.100 / 58. 54.100
+libavformat    58. 29.100 / 58. 29.100
+libavdevice    58.  8.100 / 58.  8.100
+libavfilter     7. 57.100 /  7. 57.100
+libavresample   4.  0.  0 /  4.  0.  0
+libswscale      5.  5.100 /  5.  5.100
+libswresample   3.  5.100 /  3.  5.100
+libpostproc    55.  5.100 / 55.  5.100
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda install -c conda-forge "ffmpeg>=6,<8" -y
+2 channel Terms of Service accepted
+Channels:
+ - conda-forge
+ - defaults
+Platform: linux-64
+Collecting package metadata (repodata.json): done
+Solving environment: done
+
+
+==> WARNING: A newer version of conda exists. <==
+    current version: 26.1.1
+    latest version: 26.7.1
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+
+## Package Plan ##
+
+  environment location: /home/user/miniconda3/envs/r7a_group8
+
+  added / updated specs:
+    - ffmpeg[version='>=6,<8']
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    _openmp_mutex-4.5          |       8_kmp_llvm           8 KB  conda-forge
+    aom-3.9.1                  |       hac33072_0         2.6 MB  conda-forge
+    cpython-3.12.14            |  py312hd8ed1ab_3          46 KB  conda-forge
+    dav1d-1.2.1                |       hd590300_0         742 KB  conda-forge
+    ffmpeg-6.1.2               | gpl_h20f64c8_506         9.5 MB  conda-forge
+    font-ttf-dejavu-sans-mono-2.37|       hab24e00_0         388 KB  conda-forge
+    font-ttf-inconsolata-3.000 |       h77eed37_0          94 KB  conda-forge
+    font-ttf-source-code-pro-2.038|       h77eed37_0         684 KB  conda-forge
+    font-ttf-ubuntu-0.83       |       h77eed37_3         1.5 MB  conda-forge
+    fontconfig-2.17.1          |       h27c8c51_0         264 KB  conda-forge
+    fonts-conda-ecosystem-1    |                0           4 KB  conda-forge
+    fonts-conda-forge-1        |       hc364b38_1           4 KB  conda-forge
+    fsspec-2026.7.0            |     pyhd8ed1ab_0         148 KB  conda-forge
+    giflib-5.2.2               |       ha257d8a_1          76 KB  conda-forge
+    harfbuzz-12.2.0            |       h15599e2_0         2.3 MB  conda-forge
+    icu-75.1                   |       he02047a_0        11.6 MB  conda-forge
+    libabseil-20240722.0       | cxx17_hbbce691_4         1.3 MB  conda-forge
+    libass-0.17.3              |       hba53ac1_1         150 KB  conda-forge
+    libavif-1.1.1              |       h1909e37_2          39 KB  conda-forge
+    libavif16-1.1.1            |       h1909e37_2         113 KB  conda-forge
+    libblas-3.9.0              |   20_linux64_mkl          15 KB  conda-forge
+    libcblas-3.9.0             |   20_linux64_mkl          14 KB  conda-forge
+    libdrm-2.4.129             |       h7cc23a3_0         306 KB  conda-forge
+    libegl-1.7.0               |       ha4b6fd6_5          46 KB  conda-forge
+    libfreetype-2.14.1         |       ha770c72_0           7 KB  conda-forge
+    libfreetype6-2.14.1        |       h73754d4_0         378 KB  conda-forge
+    libgcc-16.2.0              |       ha9f2e26_4         1.0 MB  conda-forge
+    libgcc-ng-16.2.0           |       h69a702a_4          28 KB  conda-forge
+    libgl-1.7.0                |       ha4b6fd6_5         129 KB  conda-forge
+    libglvnd-1.7.0             |       ha4b6fd6_5         131 KB  conda-forge
+    libglx-1.7.0               |       ha4b6fd6_5          78 KB  conda-forge
+    libhwloc-2.13.0            |default_he712815_1000         2.3 MB
+    liblzma-5.8.2              |       hb03c661_0         111 KB  conda-forge
+    libnsl-2.0.1               |       hb9d3cd8_1          33 KB  conda-forge
+    libopenvino-2024.4.0       |       hac27bb2_2         5.1 MB  conda-forge
+    libopenvino-auto-batch-plugin-2024.4.0|       h4d9b6c2_2         109 KB  conda-forge
+    libopenvino-auto-plugin-2024.4.0|       h4d9b6c2_2         232 KB  conda-forge
+    libopenvino-hetero-plugin-2024.4.0|       h3f63f65_2         193 KB  conda-forge
+    libopenvino-intel-cpu-plugin-2024.4.0|       hac27bb2_2        11.5 MB  conda-forge
+    libopenvino-intel-gpu-plugin-2024.4.0|       hac27bb2_2         8.5 MB  conda-forge
+    libopenvino-intel-npu-plugin-2024.4.0|       hac27bb2_2         781 KB  conda-forge
+    libopenvino-ir-frontend-2024.4.0|       h3f63f65_2         199 KB  conda-forge
+    libopenvino-onnx-frontend-2024.4.0|       h5c8f2c3_2         1.5 MB  conda-forge
+    libopenvino-paddle-frontend-2024.4.0|       h5c8f2c3_2         638 KB  conda-forge
+    libopenvino-pytorch-frontend-2024.4.0|       h5888daf_2         1.0 MB  conda-forge
+    libopenvino-tensorflow-frontend-2024.4.0|       h6481b9d_2         1.2 MB  conda-forge
+    libopenvino-tensorflow-lite-frontend-2024.4.0|       h5888daf_2         456 KB  conda-forge
+    libpciaccess-0.19          |       hb03c661_1          29 KB  conda-forge
+    libprotobuf-5.28.2         |       h5b01275_0         2.8 MB  conda-forge
+    libsqlite-3.53.4           |       h0737f62_1         946 KB  conda-forge
+    libstdcxx-16.2.0           |       h934c35e_4         6.3 MB  conda-forge
+    libstdcxx-ng-16.2.0        |       hdf11a46_4          28 KB  conda-forge
+    libtorch-2.5.1             |cpu_mkl_h791ef64_107        50.9 MB  conda-forge
+    libuuid-2.42.3             |       hcfc3c73_0          39 KB  conda-forge
+    libuv-1.52.1               |       h280c20c_1         410 KB  conda-forge
+    libva-2.23.0               |       he1eb515_0         216 KB  conda-forge
+    libvpx-1.14.1              |       hac33072_0         999 KB  conda-forge
+    libwebp-1.6.0              |       h089d785_0          90 KB
+    libxcrypt-4.4.38           |       h280c20c_0         100 KB  conda-forge
+    libxml2-2.13.9             |       h04c0eec_0         681 KB  conda-forge
+    mkl-2023.2.0               |   ha770c72_50498       156.2 MB  conda-forge
+    openh264-2.4.1             |       h59595ed_0         718 KB  conda-forge
+    openjpeg-2.5.4             |       h55fea9a_0         347 KB  conda-forge
+    pillow-11.1.0              |  py312hac6e08b_1         962 KB
+    pugixml-1.14               |       h59595ed_0         112 KB  conda-forge
+    python-3.12.12             |hfe2f287_0_cpython        30.1 MB  conda-forge
+    python_abi-3.12            |          9_cp312           7 KB  conda-forge
+    pytorch-2.5.1              |cpu_mkl_py312_h841d548_107        35.2 MB  conda-forge
+    rav1e-0.6.6                |       he8a937b_2        14.7 MB  conda-forge
+    sleef-3.9.0                |       ha0421bc_0         1.9 MB  conda-forge
+    snappy-1.2.2               |       h03e3b7b_1          45 KB  conda-forge
+    svt-av1-2.3.0              |       h5888daf_0         2.6 MB  conda-forge
+    sympy-1.14.0               |   pyh2585a3b_106         4.4 MB  conda-forge
+    tbb-2021.13.0              |       hb700be7_6         168 KB  conda-forge
+    torchvision-0.20.1         |cpu_py312h1c79344_2         1.5 MB
+    wayland-1.24.0             |       h3e06ad9_0         323 KB  conda-forge
+    wayland-protocols-1.49     |       hd8ed1ab_0         144 KB  conda-forge
+    x264-1!164.3095            |       h166bdaf_2         877 KB  conda-forge
+    x265-3.5                   |       h73f68a7_4         2.1 MB  conda-forge
+    xorg-libxfixes-6.0.2       |       h7cc23a3_1          21 KB  conda-forge
+    ------------------------------------------------------------
+                                           Total:       383.2 MB
+
+The following NEW packages will be INSTALLED:
+
+  cpython            conda-forge/noarch::cpython-3.12.14-py312hd8ed1ab_3 
+  font-ttf-dejavu-s~ conda-forge/noarch::font-ttf-dejavu-sans-mono-2.37-hab24e00_0 
+  font-ttf-inconsol~ conda-forge/noarch::font-ttf-inconsolata-3.000-h77eed37_0 
+  font-ttf-source-c~ conda-forge/noarch::font-ttf-source-code-pro-2.038-h77eed37_0 
+  font-ttf-ubuntu    conda-forge/noarch::font-ttf-ubuntu-0.83-h77eed37_3 
+  fonts-conda-ecosy~ conda-forge/noarch::fonts-conda-ecosystem-1-0 
+  fonts-conda-forge  conda-forge/noarch::fonts-conda-forge-1-hc364b38_1 
+  fsspec             conda-forge/noarch::fsspec-2026.7.0-pyhd8ed1ab_0 
+  libabseil          conda-forge/linux-64::libabseil-20240722.0-cxx17_hbbce691_4 
+  libass             conda-forge/linux-64::libass-0.17.3-hba53ac1_1 
+  libavif16          conda-forge/linux-64::libavif16-1.1.1-h1909e37_2 
+  libblas            conda-forge/linux-64::libblas-3.9.0-20_linux64_mkl 
+  libcblas           conda-forge/linux-64::libcblas-3.9.0-20_linux64_mkl 
+  libdrm             conda-forge/linux-64::libdrm-2.4.129-h7cc23a3_0 
+  libegl             conda-forge/linux-64::libegl-1.7.0-ha4b6fd6_5 
+  libfreetype        conda-forge/linux-64::libfreetype-2.14.1-ha770c72_0 
+  libfreetype6       conda-forge/linux-64::libfreetype6-2.14.1-h73754d4_0 
+  libgl              conda-forge/linux-64::libgl-1.7.0-ha4b6fd6_5 
+  libglvnd           conda-forge/linux-64::libglvnd-1.7.0-ha4b6fd6_5 
+  libglx             conda-forge/linux-64::libglx-1.7.0-ha4b6fd6_5 
+  libhwloc           pkgs/main/linux-64::libhwloc-2.13.0-default_he712815_1000 
+  liblzma            conda-forge/linux-64::liblzma-5.8.2-hb03c661_0 
+  libnsl             conda-forge/linux-64::libnsl-2.0.1-hb9d3cd8_1 
+  libopenvino        conda-forge/linux-64::libopenvino-2024.4.0-hac27bb2_2 
+  libopenvino-auto-~ conda-forge/linux-64::libopenvino-auto-batch-plugin-2024.4.0-h4d9b6c2_2 
+  libopenvino-auto-~ conda-forge/linux-64::libopenvino-auto-plugin-2024.4.0-h4d9b6c2_2 
+  libopenvino-heter~ conda-forge/linux-64::libopenvino-hetero-plugin-2024.4.0-h3f63f65_2 
+  libopenvino-intel~ conda-forge/linux-64::libopenvino-intel-cpu-plugin-2024.4.0-hac27bb2_2 
+  libopenvino-intel~ conda-forge/linux-64::libopenvino-intel-gpu-plugin-2024.4.0-hac27bb2_2 
+  libopenvino-intel~ conda-forge/linux-64::libopenvino-intel-npu-plugin-2024.4.0-hac27bb2_2 
+  libopenvino-ir-fr~ conda-forge/linux-64::libopenvino-ir-frontend-2024.4.0-h3f63f65_2 
+  libopenvino-onnx-~ conda-forge/linux-64::libopenvino-onnx-frontend-2024.4.0-h5c8f2c3_2 
+  libopenvino-paddl~ conda-forge/linux-64::libopenvino-paddle-frontend-2024.4.0-h5c8f2c3_2 
+  libopenvino-pytor~ conda-forge/linux-64::libopenvino-pytorch-frontend-2024.4.0-h5888daf_2 
+  libopenvino-tenso~ conda-forge/linux-64::libopenvino-tensorflow-frontend-2024.4.0-h6481b9d_2 
+  libopenvino-tenso~ conda-forge/linux-64::libopenvino-tensorflow-lite-frontend-2024.4.0-h5888daf_2 
+  libpciaccess       conda-forge/linux-64::libpciaccess-0.19-hb03c661_1 
+  libprotobuf        conda-forge/linux-64::libprotobuf-5.28.2-h5b01275_0 
+  libsqlite          conda-forge/linux-64::libsqlite-3.53.4-h0737f62_1 
+  libtorch           conda-forge/linux-64::libtorch-2.5.1-cpu_mkl_h791ef64_107 
+  libuv              conda-forge/linux-64::libuv-1.52.1-h280c20c_1 
+  libva              conda-forge/linux-64::libva-2.23.0-he1eb515_0 
+  libxcrypt          conda-forge/linux-64::libxcrypt-4.4.38-h280c20c_0 
+  openjpeg           conda-forge/linux-64::openjpeg-2.5.4-h55fea9a_0 
+  pugixml            conda-forge/linux-64::pugixml-1.14-h59595ed_0 
+  pybind11-abi       pkgs/main/noarch::pybind11-abi-5-hd3eb1b0_0 
+  python_abi         conda-forge/noarch::python_abi-3.12-9_cp312 
+  rav1e              conda-forge/linux-64::rav1e-0.6.6-he8a937b_2 
+  sleef              conda-forge/linux-64::sleef-3.9.0-ha0421bc_0 
+  snappy             conda-forge/linux-64::snappy-1.2.2-h03e3b7b_1 
+  svt-av1            conda-forge/linux-64::svt-av1-2.3.0-h5888daf_0 
+  sympy              conda-forge/noarch::sympy-1.14.0-pyh2585a3b_106 
+  wayland            conda-forge/linux-64::wayland-1.24.0-h3e06ad9_0 
+  wayland-protocols  conda-forge/noarch::wayland-protocols-1.49-hd8ed1ab_0 
+  x265               conda-forge/linux-64::x265-3.5-h73f68a7_4 
+  xorg-libxfixes     conda-forge/linux-64::xorg-libxfixes-6.0.2-h7cc23a3_1 
+
+The following packages will be REMOVED:
+
+  gnutls-3.6.15-he1e5248_0
+  libidn2-2.3.4-h5eee18b_0
+  libtasn1-4.21.0-h27ab2c4_0
+  libunistring-0.9.10-h27cfd23_0
+  nettle-3.7.3-hbbd107a_1
+
+The following packages will be UPDATED:
+
+  ffmpeg                 pkgs/main::ffmpeg-4.2.2-h20bf706_0 --> conda-forge::ffmpeg-6.1.2-gpl_h20f64c8_506 
+  libgcc                pkgs/main::libgcc-15.2.0-h69a1729_8 --> conda-forge::libgcc-16.2.0-ha9f2e26_4 
+  libgcc-ng          pkgs/main::libgcc-ng-15.2.0-h166f726_8 --> conda-forge::libgcc-ng-16.2.0-h69a702a_4 
+  libstdcxx          pkgs/main::libstdcxx-15.2.0-h39759b7_8 --> conda-forge::libstdcxx-16.2.0-h934c35e_4 
+  libstdcxx-ng       pkgs/main::libstdcxx-ng-15.2.0-hc03a8~ --> conda-forge::libstdcxx-ng-16.2.0-hdf11a46_4 
+  libuuid              pkgs/main::libuuid-1.41.5-h5eee18b_0 --> conda-forge::libuuid-2.42.3-hcfc3c73_0 
+  libvpx                 pkgs/main::libvpx-1.7.0-h439df22_0 --> conda-forge::libvpx-1.14.1-hac33072_0 
+  mkl                pkgs/main::mkl-2023.1.0-h213fc3f_46344 --> conda-forge::mkl-2023.2.0-ha770c72_50498 
+  openh264             pkgs/main::openh264-2.1.1-h4ff587b_0 --> conda-forge::openh264-2.4.1-h59595ed_0 
+  pytorch            pytorch::pytorch-2.5.1-py3.12_cuda12.~ --> conda-forge::pytorch-2.5.1-cpu_mkl_py312_h841d548_107 
+  tbb                    pkgs/main::tbb-2021.8.0-hdb19cb5_0 --> conda-forge::tbb-2021.13.0-hb700be7_6 
+  torchvision        pytorch::torchvision-0.20.1-py312_cu1~ --> pkgs/main::torchvision-0.20.1-cpu_py312h1c79344_2 
+  x264               pkgs/main::x264-1!157.20191217-h7b644~ --> conda-forge::x264-1!164.3095-h166bdaf_2 
+
+The following packages will be SUPERSEDED by a higher-priority channel:
+
+  _openmp_mutex         pkgs/main::_openmp_mutex-5.1-52_gnu --> conda-forge::_openmp_mutex-4.5-8_kmp_llvm 
+  aom                      pkgs/main::aom-3.13.2-h664349e_0 --> conda-forge::aom-3.9.1-hac33072_0 
+  dav1d                   pkgs/main::dav1d-1.5.3-h12c9f22_1 --> conda-forge::dav1d-1.2.1-hd590300_0 
+  fontconfig         pkgs/main::fontconfig-2.18.2-h4dd9078~ --> conda-forge::fontconfig-2.17.1-h27c8c51_0 
+  giflib                 pkgs/main::giflib-6.1.3-h621bd71_1 --> conda-forge::giflib-5.2.2-ha257d8a_1 
+  harfbuzz            pkgs/main::harfbuzz-12.3.0-h572a7f1_2 --> conda-forge::harfbuzz-12.2.0-h15599e2_0 
+  icu                        pkgs/main::icu-78.3-h53478e7_1 --> conda-forge::icu-75.1-he02047a_0 
+  libavif               pkgs/main::libavif-1.3.0-h2b90b00_1 --> conda-forge::libavif-1.1.1-h1909e37_2 
+  libxml2              pkgs/main::libxml2-2.15.3-he45aeb6_0 --> conda-forge::libxml2-2.13.9-h04c0eec_0 
+  python               pkgs/main::python-3.12.14-hc5f7cf0_0 --> conda-forge::python-3.12.12-hfe2f287_0_cpython 
+
+The following packages will be DOWNGRADED:
+
+  pillow                             12.2.0-py312haa37d31_0 --> 11.1.0-py312hac6e08b_1 
+
+The following packages will be REVISED:
+
+  libwebp                                  1.6.0-hfca4578_1 --> 1.6.0-h089d785_0 
+
+
+
+Downloading and Extracting Packages:
+                                                                                
+Preparing transaction: done                                                     
+Verifying transaction: done                                                     
+Executing transaction: done                                                     
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ ffmpeg -version
+ffmpeg version 6.1.2 Copyright (c) 2000-2024 the FFmpeg developers
+built with gcc 13.3.0 (conda-forge gcc 13.3.0-1)                                
+configuration: --prefix=/home/user/miniconda3/envs/r7a_group8 --cc=/home/conda/feedstock_root/build_artifacts/ffmpeg_1730671272643/_build_env/bin/x86_64-conda-linux-gnu-cc --cxx=/home/conda/feedstock_root/build_artifacts/ffmpeg_1730671272643/_build_env/bin/x86_64-conda-linux-gnu-c++ --nm=/home/conda/feedstock_root/build_artifacts/ffmpeg_1730671272643/_build_env/bin/x86_64-conda-linux-gnu-nm --ar=/home/conda/feedstock_root/build_artifacts/ffmpeg_1730671272643/_build_env/bin/x86_64-conda-linux-gnu-ar --disable-doc --enable-openssl --enable-demuxer=dash --enable-hardcoded-tables --enable-libfreetype --enable-libharfbuzz --enable-libfontconfig --enable-libopenh264 --enable-libdav1d --disable-gnutls --enable-libmp3lame --enable-libvpx --enable-libass --enable-pthreads --enable-vaapi --enable-libopenvino --enable-gpl --enable-libx264 --enable-libx265 --enable-libaom --enable-libsvtav1 --enable-libxml2 --enable-pic --enable-shared --disable-static --enable-version3 --enable-zlib --enable-libopus --pkg-config=/home/conda/feedstock_root/build_artifacts/ffmpeg_1730671272643/_build_env/bin/pkg-config              
+libavutil      58. 29.100 / 58. 29.100                                          
+libavcodec     60. 31.102 / 60. 31.102
+libavformat    60. 16.100 / 60. 16.100
+libavdevice    60.  3.100 / 60.  3.100
+libavfilter     9. 12.100 /  9. 12.100
+libswscale      7.  5.100 /  7.  5.100
+libswresample   4. 12.100 /  4. 12.100
+libpostproc    57.  3.100 / 57.  3.100
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "from torchcodec.decoders import AudioDecoder; print('AudioDecoder OK')"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/__init__.py", line 10, in <module>
+    from . import decoders, samplers  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/__init__.py", line 7, in <module>
+    from ._core import VideoStreamMetadata
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/__init__.py", line 8, in <module>
+    from ._metadata import (
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/_metadata.py", line 15, in <module>
+    from torchcodec.decoders._core.video_decoder_ops import (
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/video_decoder_ops.py", line 59, in <module>
+    load_torchcodec_extension()
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/_core/video_decoder_ops.py", line 44, in load_torchcodec_extension
+    raise RuntimeError(
+RuntimeError: Could not load libtorchcodec. Likely causes:
+          1. FFmpeg is not properly installed in your environment. We support
+             versions 4, 5, 6 and 7.
+          2. The PyTorch version (2.5.1.post107) is not compatible with
+             this version of TorchCodec. Refer to the version compatibility
+             table:
+             https://github.com/pytorch/torchcodec?tab=readme-ov-file#installing-torchcodec.
+          3. Another runtime dependency; see exceptions below.
+        The following exceptions were raised as we tried to load libtorchcodec:
+        
+[start of libtorchcodec loading traceback]
+libc10_cuda.so: cannot open shared object file: No such file or directory
+libc10_cuda.so: cannot open shared object file: No such file or directory
+libc10_cuda.so: cannot open shared object file: No such file or directory
+
+[end of libtorchcodec loading traceback].
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ ls $CONDA_PREFIX/lib/python3.12/site-packages/torch/lib/libc10_cuda.so
+ls: cannot access '/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torch/lib/libc10_cuda.so': No such file or directory
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torch; print(torch.__file__); print(torch.version.cuda); print(torch.cuda.is_available())"
+/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torch/__init__.py
+None
+False
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda list | grep -E "^(pytorch|pytorch-cuda|torchvision|torchaudio|cuda|nvidia)"
+cuda-cudart                             12.1.105         0                           nvidia
+cuda-cupti                              12.1.105         0                           nvidia
+cuda-libraries                          12.1.0           0                           nvidia
+cuda-nvrtc                              12.1.105         0                           nvidia
+cuda-nvtx                               12.1.105         0                           nvidia
+cuda-opencl                             12.9.19          0                           nvidia
+cuda-runtime                            12.1.0           0                           nvidia
+cuda-version                            12.9             h4f385c5_4                  nvidia
+pytorch                                 2.5.1            cpu_mkl_py312_h841d548_107  conda-forge
+pytorch-cuda                            12.1             ha16c6d3_6                  pytorch
+pytorch-mutex                           1.0              cuda                        pytorch
+torchaudio                              2.5.1            py312_cu121                 pytorch
+torchvision                             0.20.1           cpu_py312h1c79344_2
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia --override-channels -y
+Retrieving notices: done
+Channels:
+ - pytorch
+ - nvidia
+Platform: linux-64
+Collecting package metadata (repodata.json): done
+Solving environment: done
+
+# All requested packages already installed.
+
+
+Channel "nvidia" has the following notices:
+  [warning] -- Fri Sep  4 07:00:10 2026
+  NVIDIA conda channel update — cuda, cublasmp, cudnn, cudss, cuest, cufftmp, cuquantum, cusolvermp, cusparselt, cutensor, nccl, nvpl, nvshmem, cuda-python, numbast stop receiving updates on the `nvidia` channel after Aug 7, 2026. Existing packages/envs keep working; get updates from Anaconda main (defaults) or conda-forge. Migration guide: https://anaconda.com/guides/nvidia-channel-migration?utm_source=channel_notices
+
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); print('GPU available:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'NONE')"
+PyTorch: 2.5.1.post107
+CUDA: None
+GPU available: False
+GPU: NONE
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -m pip install --force-reinstall \
+  torch==2.5.1 \
+  torchvision==0.20.1 \
+  torchaudio==2.5.1 \
+  --index-url https://download.pytorch.org/whl/cu121
+Looking in indexes: https://download.pytorch.org/whl/cu121
+Collecting torch==2.5.1
+  Downloading torch-2.5.1%2Bcu121-cp312-cp312-linux_x86_64.whl (780.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.4/780.4 MB 30.2 MB/s  0:00:13
+Collecting torchvision==0.20.1
+  Downloading torchvision-0.20.1%2Bcu121-cp312-cp312-linux_x86_64.whl (7.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 31.5 MB/s  0:00:00
+Collecting torchaudio==2.5.1
+  Downloading torchaudio-2.5.1%2Bcu121-cp312-cp312-linux_x86_64.whl (3.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 24.1 MB/s  0:00:00
+Collecting filelock (from torch==2.5.1)
+  Downloading filelock-3.32.3-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.8.0 (from torch==2.5.1)
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting networkx (from torch==2.5.1)
+  Using cached networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
+Collecting jinja2 (from torch==2.5.1)
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch==2.5.1)
+  Using cached fsspec-2026.7.0-py3-none-any.whl.metadata (10 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.1.105 (from torch==2.5.1)
+  Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 78.1 MB/s  0:00:00
+Collecting nvidia-cuda-runtime-cu12==12.1.105 (from torch==2.5.1)
+  Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 232.2 MB/s  0:00:00
+Collecting nvidia-cuda-cupti-cu12==12.1.105 (from torch==2.5.1)
+  Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 93.1 MB/s  0:00:00
+Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch==2.5.1)
+  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 35.7 MB/s  0:00:10
+Collecting nvidia-cublas-cu12==12.1.3.1 (from torch==2.5.1)
+  Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 91.5 MB/s  0:00:04
+Collecting nvidia-cufft-cu12==11.0.2.54 (from torch==2.5.1)
+  Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 89.7 MB/s  0:00:01
+Collecting nvidia-curand-cu12==10.3.2.106 (from torch==2.5.1)
+  Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 93.4 MB/s  0:00:00
+Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch==2.5.1)
+  Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 91.4 MB/s  0:00:01
+Collecting nvidia-cusparse-cu12==12.1.0.106 (from torch==2.5.1)
+  Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 88.1 MB/s  0:00:02
+Collecting nvidia-nccl-cu12==2.21.5 (from torch==2.5.1)
+  Downloading nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl (188.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 188.7/188.7 MB 91.5 MB/s  0:00:02
+Collecting nvidia-nvtx-cu12==12.1.105 (from torch==2.5.1)
+  Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)
+Collecting triton==3.1.0 (from torch==2.5.1)
+  Downloading triton-3.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (209.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.6/209.6 MB 24.4 MB/s  0:00:08
+Collecting setuptools (from torch==2.5.1)
+  Downloading setuptools-78.1.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting sympy==1.13.1 (from torch==2.5.1)
+  Using cached sympy-1.13.1-py3-none-any.whl.metadata (12 kB)
+Collecting numpy (from torchvision==0.20.1)
+  Downloading numpy-2.5.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting pillow!=8.3.*,>=5.3.0 (from torchvision==0.20.1)
+  Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting nvidia-nvjitlink-cu12 (from nvidia-cusolver-cu12==11.4.5.107->torch==2.5.1)
+  Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.7/39.7 MB 96.0 MB/s  0:00:00
+Collecting mpmath<1.4,>=1.1.0 (from sympy==1.13.1->torch==2.5.1)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.5.1)
+  Downloading markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Using cached sympy-1.13.1-py3-none-any.whl (6.2 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 21.9 MB/s  0:00:00
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading filelock-3.32.3-py3-none-any.whl (98 kB)
+Downloading fsspec-2026.7.0-py3-none-any.whl (206 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Using cached networkx-3.6.1-py3-none-any.whl (2.1 MB)
+Downloading numpy-2.5.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 39.6 MB/s  0:00:00
+Downloading setuptools-78.1.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 9.7 MB/s  0:00:00
+Installing collected packages: mpmath, typing-extensions, sympy, setuptools, pillow, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, networkx, MarkupSafe, fsspec, filelock, triton, nvidia-cusparse-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch, torchvision, torchaudio
+  Attempting uninstall: mpmath
+    Found existing installation: mpmath 1.3.0
+    Uninstalling mpmath-1.3.0:
+      Successfully uninstalled mpmath-1.3.0
+  Attempting uninstall: typing-extensions
+    Found existing installation: typing_extensions 4.16.0
+    Uninstalling typing_extensions-4.16.0:
+      Successfully uninstalled typing_extensions-4.16.0
+  Attempting uninstall: sympy
+    Found existing installation: sympy 1.13.1
+    Uninstalling sympy-1.13.1:
+      Successfully uninstalled sympy-1.13.1
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 83.0.0
+    Uninstalling setuptools-83.0.0:
+      Successfully uninstalled setuptools-83.0.0
+  Attempting uninstall: pillow
+    Found existing installation: pillow 11.1.0
+    Uninstalling pillow-11.1.0:
+      Successfully uninstalled pillow-11.1.0
+  Attempting uninstall: numpy
+    Found existing installation: numpy 2.0.1
+    Uninstalling numpy-2.0.1:
+      Successfully uninstalled numpy-2.0.1
+  Attempting uninstall: networkx
+    Found existing installation: networkx 3.6.1
+    Uninstalling networkx-3.6.1:
+      Successfully uninstalled networkx-3.6.1
+  Attempting uninstall: MarkupSafe
+    Found existing installation: MarkupSafe 3.0.3
+    Uninstalling MarkupSafe-3.0.3:
+      Successfully uninstalled MarkupSafe-3.0.3
+  Attempting uninstall: fsspec
+    Found existing installation: fsspec 2026.6.0
+    Uninstalling fsspec-2026.6.0:
+      Successfully uninstalled fsspec-2026.6.0
+  Attempting uninstall: filelock
+    Found existing installation: filelock 3.25.2
+    Uninstalling filelock-3.25.2:
+      Successfully uninstalled filelock-3.25.2
+  Attempting uninstall: triton
+    Found existing installation: triton 3.1.0
+    Uninstalling triton-3.1.0:
+      Successfully uninstalled triton-3.1.0
+  Attempting uninstall: jinja2
+    Found existing installation: Jinja2 3.1.6
+    Uninstalling Jinja2-3.1.6:
+      Successfully uninstalled Jinja2-3.1.6
+  Attempting uninstall: torch
+    Found existing installation: torch 2.5.1.post107
+    Uninstalling torch-2.5.1.post107:
+      Successfully uninstalled torch-2.5.1.post107
+  Attempting uninstall: torchvision
+    Found existing installation: torchvision 0.20.1
+    Uninstalling torchvision-0.20.1:
+      Successfully uninstalled torchvision-0.20.1
+  Attempting uninstall: torchaudio
+    Found existing installation: torchaudio 2.5.1
+    Uninstalling torchaudio-2.5.1:
+      Successfully uninstalled torchaudio-2.5.1
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+datasets 5.0.1 requires fsspec[http]<=2026.6.0,>=2023.1.0, but you have fsspec 2026.7.0 which is incompatible.
+Successfully installed MarkupSafe-3.0.3 filelock-3.29.4 fsspec-2026.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.6.1 numpy-2.5.2 nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.21.5 nvidia-nvjitlink-cu12-12.9.86 nvidia-nvtx-cu12-12.1.105 pillow-12.3.0 setuptools-78.1.0 sympy-1.13.1 torch-2.5.1+cu121 torchaudio-2.5.1+cu121 torchvision-0.20.1+cu121 triton-3.1.0 typing-extensions-4.16.0
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); print('GPU available:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'NONE')"
+PyTorch: 2.5.1+cu121
+CUDA: 12.1
+GPU available: True
+GPU: Quadro P2200
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "from torchcodec.decoders import AudioDecoder; print('AudioDecoder OK')"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ImportError: cannot import name 'AudioDecoder' from 'torchcodec.decoders' (/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/torchcodec/decoders/__init__.py). Did you mean: 'VideoDecoder'?
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import torchcodec; print(torchcodec.__version__); import torchcodec.decoders as d; print(dir(d))"
+0.1.1+cu121
+['SimpleVideoDecoder', 'VideoDecoder', 'VideoStreamMetadata', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__path__', '__spec__', '_core', '_video_decoder']
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ grep -RniE "datasets|torchcodec|requirements" README.md hyperparam_tuning_slp_audio.py
+hyperparam_tuning_slp_audio.py:8:from datasets import load_dataset, Audio, ClassLabel, concatenate_datasets
+hyperparam_tuning_slp_audio.py:167:        balanced_ds = concatenate_datasets(dfs)
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ sed -n '1,230p' hyperparam_tuning_slp_audio.py
+import argparse
+import datetime
+import os
+import re
+import torch
+import numpy as np
+import pandas as pd
+from datasets import load_dataset, Audio, ClassLabel, concatenate_datasets
+import wandb
+from transformers import (
+    AutoFeatureExtractor,
+    AutoModelForAudioClassification,
+    TrainingArguments,
+    Trainer,
+    set_seed,
+    EarlyStoppingCallback
+
+)
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report
+from sklearn.model_selection import train_test_split as sklearn_split
+from audiomentations import PitchShift, AddGaussianNoise
+from torch import nn
+import warnings
+import random
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+warnings.filterwarnings("ignore", message="Was asked to gather along dimension 0")
+
+
+parser = argparse.ArgumentParser(description="Train Audio Classifier (Sweep Ready)")
+
+
+parser.add_argument("--target_column", type=str, required=True, 
+                    choices=["disorder_class", "disorder_type", "disorder_symptom"],
+                    help="The column to classify")
+parser.add_argument("--model_checkpoint", type=str, default="facebook/wav2vec2-large-xlsr-53", 
+                    help="HuggingFace model hub checkpoint")
+parser.add_argument("--wandb_project", type=str, default="SLP-Gender-CDA", help="W&B Project name")
+
+parser.add_argument("--exclude_healthy", type=str2bool, default=False, 
+                    help="If True, removes 'typically_developing' samples from the dataset")
+
+
+parser.add_argument("--aug_male", type=str2bool, default=True, help="Apply augmentations to Male samples")
+parser.add_argument("--aug_female",type=str2bool, default=True, help="Apply augmentations to Female samples")
+
+
+parser.add_argument("--epochs", type=int, default=10)
+parser.add_argument("--batch_size", type=int, default=16)
+parser.add_argument("--learning_rate", type=float, default=3e-5)
+parser.add_argument("--gradient_accumulation", type=int, default=2)
+parser.add_argument("--oversample_mult", type=int, default=5, help="Max duplication factor for balancing")
+parser.add_argument("--pitch_prob", type=float, default=0.5, help="Probability of applying pitch shift (if gender matches)")
+parser.add_argument("--noise_prob", type=float, default=0.0, help="Probability of applying Gaussian noise")
+parser.add_argument("--pitch_shift_min", type=int, default=6, help="Minimum absolute semitones to shift")
+parser.add_argument("--pitch_shift_max", type=int, default=8, help="Maximum absolute semitones to shift")
+
+
+parser.add_argument("--random_seed", type=int, help="Seed for Run (Init/Shuffle/Val-Split)")
+parser.add_argument("--doTest", type=bool, default=True, help="should evaluate on test?")
+
+TEST_SPLIT_SEED = 42 
+
+
+args = parser.parse_args()
+
+if not args.random_seed:
+    args.random_seed = random.randint(0,10000)
+
+
+if args.random_seed:
+    random.seed(args.random_seed)
+    np.random.seed(args.random_seed)
+    torch.manual_seed(args.random_seed)
+    set_seed(args.random_seed) 
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.random_seed)
+
+
+print(f"--- RUN CONFIGURATION ---")
+print(f"\n[STANDARD LOSS]\n")
+print(f"Test Split Seed (Fixed): {TEST_SPLIT_SEED}")
+print(f"Run Seed (Variable):     {args.random_seed}")
+print(f"-------------------------")
+
+
+safe_model_name = args.model_checkpoint.replace("/", "-")
+
+
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+DATASET_NAME = "SAA-Lab/SLPHelmUltraSuitePlus"
+MAX_DURATION = 12.0 
+OUTPUT_DIR = f"./results_{args.target_column}_{safe_model_name}_seed{args.random_seed}_{timestamp}"
+
+
+dataset = load_dataset(DATASET_NAME, split="train")
+
+def add_speaker_ids(dataset):
+    print("Extracting Speaker IDs...")
+    ds_meta = dataset.cast_column("audio", Audio(decode=False))
+    paths = [item['audio']['path'] for item in ds_meta]
+    pattern = re.compile(r"^(?:test_|train_|val_|audio_)?([a-zA-Z0-9]+)[_\-\.]", re.IGNORECASE)
+    speaker_ids = []
+    for p in paths:
+        filename = os.path.basename(p)
+        match = pattern.search(filename)
+        speaker_ids.append(match.group(1) if match else filename)
+    return dataset.add_column("speaker_id", speaker_ids)
+
+dataset = add_speaker_ids(dataset)
+
+def clean_and_remap_labels(batch):
+    label = batch[args.target_column]
+    if label is None: return batch
+    label = str(label).replace("['", "").replace("']", "").replace("[", "").replace("]", "")
+    
+    
+    if args.target_column == "disorder_type":
+        if label in ["addition", "omission"]: label = "articulation"
+        elif label == "stuttering": label = "phonological"
+    elif args.target_column == "disorder_symptom":
+        if label in ['substitution_modified', "phonological"]: label = "stuttering" 
+    return {args.target_column: label}
+
+dataset = dataset.map(clean_and_remap_labels)
+dataset = dataset.filter(lambda x: x[args.target_column] is not None)
+
+
+def balance_dataset(ds, target_col, max_multiplier):
+    labels = ds[target_col]
+    counts = {}
+    for l in labels: counts[l] = counts.get(l, 0) + 1
+    
+    if not counts: return ds
+    
+    majority_count = max(counts.values())
+    dfs = [ds]
+    
+    print(f"\n[Balancing] Initial Distribution: {counts}")
+    print(f"[Balancing] Balancing strategy: Capped at {max_multiplier}x duplicates")
+
+    for label, count in counts.items():
+        if count == majority_count: continue
+        
+        ratio = majority_count / count
+        multiplier = min(int(round(ratio)), max_multiplier)
+        
+        if multiplier > 1:
+            print(f"   -> Oversampling '{label}': {count} -> {multiplier}x (Target ~{count*multiplier})")
+            minority_ds = ds.filter(lambda x: x[target_col] == label)
+            for _ in range(multiplier - 1):
+                dfs.append(minority_ds)
+                
+    if len(dfs) > 1:
+        balanced_ds = concatenate_datasets(dfs)
+        print(f"[Balancing] Final Size: {len(balanced_ds)}")
+        return balanced_ds
+    return ds
+
+
+
+
+df = dataset.to_pandas()
+unique_speakers = sorted(df["speaker_id"].unique())
+
+
+train_val_spk, test_spk = sklearn_split(unique_speakers, test_size=0.2, random_state=42)
+
+
+train_spk, val_spk = sklearn_split(train_val_spk, test_size=0.2, random_state=42)
+
+
+assert set(train_spk).isdisjoint(set(val_spk)), "Leakage: Train <-> Val"
+assert set(train_spk).isdisjoint(set(test_spk)), "Leakage: Train <-> Test"
+
+
+dataset_train = dataset.filter(lambda x: x["speaker_id"] in train_spk)
+dataset_val   = dataset.filter(lambda x: x["speaker_id"] in val_spk)
+dataset_test  = dataset.filter(lambda x: x["speaker_id"] in test_spk)
+
+
+
+if args.target_column in ["disorder_symptom", "disorder_type"]:
+    args.exclude_healthy = True
+
+if args.exclude_healthy:
+    print(f"\n[Filter] Purging 'typically_developing' samples from all splits...")
+    
+    dataset_train = dataset_train.filter(lambda x: str(x[args.target_column]).strip().lower() != "typically_developing")
+    dataset_val   = dataset_val.filter(lambda x: str(x[args.target_column]).strip().lower() != "typically_developing")
+    dataset_test  = dataset_test.filter(lambda x: str(x[args.target_column]).strip().lower() != "typically_developing")
+
+
+all_labels = set(dataset_train[args.target_column]) | set(dataset_val[args.target_column]) | set(dataset_test[args.target_column])
+unique_labels = sorted(list(all_labels))
+
+
+print(f"Labels the model will learn: {unique_labels}")
+
+
+label_feature = ClassLabel(names=unique_labels)
+label2id = {label: i for i, label in enumerate(unique_labels)}
+id2label = {i: label for i, label in enumerate(unique_labels)}
+ALL_LABEL_IDS = list(range(len(unique_labels)))
+
+
+dataset_train = dataset_train.map(lambda x: {"labels": label_feature.str2int(x[args.target_column])})
+dataset_val   = dataset_val.map(lambda x: {"labels": label_feature.str2int(x[args.target_column])})
+dataset_test  = dataset_test.map(lambda x: {"labels": label_feature.str2int(x[args.target_column])})
+
+print(f"\n[Split Stats] Seed: {args.random_seed}")
+print(f"   Train: {len(dataset_train)} samples")
+print(f"   Val:   {len(dataset_val)} samples")
+print(f"   Test:  {len(dataset_test)} samples [FIXED SPEAKER SPLIT]")
+
+
+print(f"Applying Class Balancing logic to {args.target_column} (Train Set Only)...")
+dataset_train = balance_dataset(dataset_train, args.target_column, args.oversample_mult)
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ conda activate r7a_group8 
+pip install "datasets==3.6.0"
+Collecting datasets==3.6.0
+  Downloading datasets-3.6.0-py3-none-any.whl.metadata (19 kB)
+Requirement already satisfied: filelock in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (3.29.4)
+Requirement already satisfied: numpy>=1.17 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (2.5.2)
+Requirement already satisfied: pyarrow>=15.0.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (25.0.1)
+Collecting dill<0.3.9,>=0.3.0 (from datasets==3.6.0)
+  Downloading dill-0.3.8-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: pandas in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (3.0.5)
+Requirement already satisfied: requests>=2.32.2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (2.34.2)
+Requirement already satisfied: tqdm>=4.66.3 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (4.70.0)
+Requirement already satisfied: xxhash in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (4.0.1)
+Collecting multiprocess<0.70.17 (from datasets==3.6.0)
+  Downloading multiprocess-0.70.16-py312-none-any.whl.metadata (7.2 kB)
+Collecting fsspec<=2025.3.0,>=2023.1.0 (from fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0)
+  Downloading fsspec-2025.3.0-py3-none-any.whl.metadata (11 kB)
+Requirement already satisfied: huggingface-hub>=0.24.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (1.30.0)
+Requirement already satisfied: packaging in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (26.3)
+Requirement already satisfied: pyyaml>=5.1 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from datasets==3.6.0) (6.0.3)
+Requirement already satisfied: aiohttp!=4.0.0a0,!=4.0.0a1 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (3.14.3)
+Requirement already satisfied: aiohappyeyeballs>=2.5.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (2.7.1)
+Requirement already satisfied: aiosignal>=1.4.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (1.4.0)
+Requirement already satisfied: attrs>=17.3.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (26.1.0)
+Requirement already satisfied: frozenlist>=1.1.1 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (1.8.0)
+Requirement already satisfied: multidict<7.0,>=4.5 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (6.7.1)
+Requirement already satisfied: propcache>=0.2.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (0.5.2)
+Requirement already satisfied: typing_extensions>=4.4 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (4.16.0)
+Requirement already satisfied: yarl<2.0,>=1.17.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (1.24.5)
+Requirement already satisfied: idna>=2.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from yarl<2.0,>=1.17.0->aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0) (3.18)
+Requirement already satisfied: click<9.0.0,>=8.4.2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from huggingface-hub>=0.24.0->datasets==3.6.0) (8.5.0)
+Requirement already satisfied: hf-xet<2.0.0,>=1.5.2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from huggingface-hub>=0.24.0->datasets==3.6.0) (1.6.0)
+Requirement already satisfied: httpx<1,>=0.23.0 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from huggingface-hub>=0.24.0->datasets==3.6.0) (0.28.1)
+Requirement already satisfied: anyio in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.24.0->datasets==3.6.0) (4.15.0)
+Requirement already satisfied: certifi in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.24.0->datasets==3.6.0) (2026.7.22)
+Requirement already satisfied: httpcore==1.* in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from httpx<1,>=0.23.0->huggingface-hub>=0.24.0->datasets==3.6.0) (1.0.9)
+Requirement already satisfied: h11>=0.16 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub>=0.24.0->datasets==3.6.0) (0.16.0)
+Requirement already satisfied: charset_normalizer<4,>=2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from requests>=2.32.2->datasets==3.6.0) (3.4.7)
+Requirement already satisfied: urllib3<3,>=1.26 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from requests>=2.32.2->datasets==3.6.0) (2.7.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from pandas->datasets==3.6.0) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas->datasets==3.6.0) (1.17.0)
+Downloading datasets-3.6.0-py3-none-any.whl (491 kB)
+Downloading dill-0.3.8-py3-none-any.whl (116 kB)
+Downloading fsspec-2025.3.0-py3-none-any.whl (193 kB)
+Downloading multiprocess-0.70.16-py312-none-any.whl (146 kB)
+Installing collected packages: fsspec, dill, multiprocess, datasets
+  Attempting uninstall: fsspec
+    Found existing installation: fsspec 2026.7.0
+    Uninstalling fsspec-2026.7.0:
+      Successfully uninstalled fsspec-2026.7.0
+  Attempting uninstall: dill
+    Found existing installation: dill 0.4.1
+    Uninstalling dill-0.4.1:
+      Successfully uninstalled dill-0.4.1
+  Attempting uninstall: multiprocess
+    Found existing installation: multiprocess 0.70.19
+    Uninstalling multiprocess-0.70.19:
+      Successfully uninstalled multiprocess-0.70.19
+  Attempting uninstall: datasets
+    Found existing installation: datasets 5.0.1
+    Uninstalling datasets-5.0.1:
+      Successfully uninstalled datasets-5.0.1
+Successfully installed datasets-3.6.0 dill-0.3.8 fsspec-2025.3.0 multiprocess-0.70.16
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "import datasets; print(datasets.__version__)"
+3.6.0
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python -c "from datasets import load_dataset, Audio; print('Datasets audio import OK')"
+Datasets audio import OK
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python hyperparam_tuning_slp_audio.py \
+  --target_column disorder_class \
+  --model_checkpoint facebook/wav2vec2-base \
+  --epochs 1 \
+  --batch_size 2 \
+  --gradient_accumulation 1 \
+  --oversample_mult 1 \
+  --pitch_prob 0 \
+  --noise_prob 0
+--- RUN CONFIGURATION ---
+
+[STANDARD LOSS]
+
+Test Split Seed (Fixed): 42
+Run Seed (Variable):     5234
+-------------------------
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Extracting Speaker IDs...
+Map: 100%|█████████████████████████| 926/926 [00:00<00:00, 10876.84 examples/s]
+Filter: 100%|█████████████████████████| 926/926 [00:16<00:00, 55.19 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:05<00:00, 172.36 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:05<00:00, 177.77 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:05<00:00, 179.86 examples/s]
+Labels the model will learn: ['speech_disorder', 'typically_developing']
+Map: 100%|█████████████████████████| 629/629 [00:00<00:00, 11846.29 examples/s]
+Map: 100%|█████████████████████████| 128/128 [00:00<00:00, 10357.31 examples/s]
+Map: 100%|█████████████████████████| 169/169 [00:00<00:00, 10816.83 examples/s]
+
+[Split Stats] Seed: 5234
+   Train: 629 samples
+   Val:   128 samples
+   Test:  169 samples [FIXED SPEAKER SPLIT]
+Applying Class Balancing logic to disorder_class (Train Set Only)...
+
+[Balancing] Initial Distribution: {'speech_disorder': 295, 'typically_developing': 334}
+[Balancing] Balancing strategy: Capped at 1x duplicates
+
+[Auto-Weights] Calculated Loss Penalties:
+   - speech_disorder: 1.07x
+   - typically_developing: 0.94x
+preprocessor_config.json: 100%|████████████████| 159/159 [00:00<00:00, 498kB/s]
+config.json: 100%|████████████████████████| 1.84k/1.84k [00:00<00:00, 3.73MB/s]
+[Augmentation] Dynamic Pitch Shift: Abs Range [6, 8] semitones
+pytorch_model.bin: downloading bytes: █████████████████████|  255MB, 20.2MB/s  
+pytorch_model.bin: reconstructing file: 100%|█████|  380MB /  380MB, 31.2MB/s  
+Traceback (most recent call last):
+  File "/home/user/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology/hyperparam_tuning_slp_audio.py", line 322, in <module>
+    model = AutoModelForAudioClassification.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 402, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4308, in from_pretrained
+    config, dtype = _get_dtype(
+                    ^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/transformers/modeling_utils.py", line 846, in _get_dtype
+    state_dict = load_state_dict(
+                 ^^^^^^^^^^^^^^^^
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/transformers/modeling_utils.py", line 359, in load_state_dict
+    check_torch_load_is_safe()
+  File "/home/user/miniconda3/envs/r7a_group8/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 1655, in check_torch_load_is_safe
+    raise ValueError(
+ValueError: Due to a serious vulnerability issue in `torch.load`, even with `weights_only=True`, we now require users to upgrade torch to at least v2.6 in order to use the function. This version restriction does not apply when loading files with safetensors.
+See the vulnerability report here https://nvd.nist.gov/vuln/detail/CVE-2025-32434
+model.safetensors: downloading bytes: █████████████████████|  255MB, 20.8MB/s  
+model.safetensors: reconstructing file: 100%|█████|  380MB /  380MB, 32.0MB/s  
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ sed -n '310,340p' hyperparam_tuning_slp_audio.py
+    labels = eval_pred.label_ids
+    p_mac, r_mac, f1_mac, _ = precision_recall_fscore_support(labels, preds, average="macro", zero_division=0)
+    
+    acc = accuracy_score(labels, preds)
+    return {
+        "accuracy": acc, "f1_macro": f1_mac, "f1_micro": acc,
+        "precision_macro": p_mac, "recall_macro": r_mac
+    }
+
+
+
+try:
+    model = AutoModelForAudioClassification.from_pretrained(
+        args.model_checkpoint, 
+        num_labels=len(unique_labels), 
+        label2id=label2id, 
+        id2label=id2label, 
+        ignore_mismatched_sizes=True
+    )
+except OSError:
+    
+    model = AutoModelForAudioClassification.from_pretrained(
+        args.model_checkpoint, 
+        num_labels=len(unique_labels), 
+        label2id=label2id, 
+        id2label=id2label, 
+        ignore_mismatched_sizes=True,
+        trust_remote_code=True
+    )
+
+model.freeze_feature_encoder()
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ python hyperparam_tuning_slp_audio.py \
+  --target_column disorder_class \
+  --model_checkpoint facebook/wav2vec2-base \
+  --epochs 1 \
+  --batch_size 2 \
+  --gradient_accumulation 1 \
+  --oversample_mult 1 \
+  --pitch_prob 0 \
+  --noise_prob 0
+--- RUN CONFIGURATION ---
+
+[STANDARD LOSS]
+
+Test Split Seed (Fixed): 42
+Run Seed (Variable):     3932
+-------------------------
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Extracting Speaker IDs...
+Map: 100%|█████████████████████████| 926/926 [00:00<00:00, 15578.45 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:06<00:00, 151.73 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:05<00:00, 172.74 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:05<00:00, 177.38 examples/s]
+Filter: 100%|████████████████████████| 926/926 [00:05<00:00, 178.11 examples/s]
+Labels the model will learn: ['speech_disorder', 'typically_developing']
+Map: 100%|█████████████████████████| 629/629 [00:00<00:00, 11830.73 examples/s]
+Map: 100%|█████████████████████████| 128/128 [00:00<00:00, 10139.21 examples/s]
+Map: 100%|███████████████████████████| 169/169 [00:00<00:00, 864.24 examples/s]
+
+[Split Stats] Seed: 3932
+   Train: 629 samples
+   Val:   128 samples
+   Test:  169 samples [FIXED SPEAKER SPLIT]
+Applying Class Balancing logic to disorder_class (Train Set Only)...
+
+[Balancing] Initial Distribution: {'speech_disorder': 295, 'typically_developing': 334}
+[Balancing] Balancing strategy: Capped at 1x duplicates
+
+[Auto-Weights] Calculated Loss Penalties:
+   - speech_disorder: 1.07x
+   - typically_developing: 0.94x
+[Augmentation] Dynamic Pitch Shift: Abs Range [6, 8] semitones
+Loading weights: 100%|█████████████████████| 211/211 [00:00<00:00, 4253.18it/s]
+[transformers] Wav2Vec2ForSequenceClassification LOAD REPORT from: facebook/wav2vec2-base
+Key                          | Status     | 
+-----------------------------+------------+-
+project_q.weight             | UNEXPECTED | 
+project_hid.bias             | UNEXPECTED | 
+quantizer.weight_proj.bias   | UNEXPECTED | 
+project_hid.weight           | UNEXPECTED | 
+quantizer.codevectors        | UNEXPECTED | 
+quantizer.weight_proj.weight | UNEXPECTED | 
+project_q.bias               | UNEXPECTED | 
+classifier.bias              | MISSING    | 
+projector.bias               | MISSING    | 
+classifier.weight            | MISSING    | 
+projector.weight             | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+wandb: (1) Create a W&B account
+wandb: (2) Use an existing W&B account
+wandb: (3) Don't visualize my results
+wandb: Enter your choice: 3
+wandb: You chose "Don't visualize my results"
+wandb: Using W&B in offline mode.
+wandb: W&B API key is configured. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.29.0
+wandb: W&B syncing is set to `offline` in this directory. Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Run data is saved locally in /home/user/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology/wandb/offline-run-20260905_103849-cr1jqory
+wandb: View this run in the terminal with `wandb leet`
+
+
+
+
+
+
+
+
+
+{'loss': '0.6862', 'grad_norm': '1.348', 'learning_rate': '2.914e-05', 'epoch': '0.03175'}
+{'loss': '0.6736', 'grad_norm': '4.149', 'learning_rate': '2.819e-05', 'epoch': '0.06349'}
+{'loss': '0.6798', 'grad_norm': '4.518', 'learning_rate': '2.724e-05', 'epoch': '0.09524'}
+{'loss': '0.4937', 'grad_norm': '1.973', 'learning_rate': '2.638e-05', 'epoch': '0.127'}
+{'loss': '0.6015', 'grad_norm': '1.432', 'learning_rate': '2.543e-05', 'epoch': '0.1587'}
+{'loss': '0.5885', 'grad_norm': '1.23', 'learning_rate': '2.457e-05', 'epoch': '0.1905'}
+{'loss': '0.6191', 'grad_norm': '4.267', 'learning_rate': '2.381e-05', 'epoch': '0.2222'}
+{'loss': '0.8704', 'grad_norm': '6.679', 'learning_rate': '2.286e-05', 'epoch': '0.254'}
+{'loss': '0.8601', 'grad_norm': '7.463', 'learning_rate': '2.19e-05', 'epoch': '0.2857'}
+{'loss': '0.7338', 'grad_norm': '6.979', 'learning_rate': '2.095e-05', 'epoch': '0.3175'}
+{'loss': '0.7312', 'grad_norm': '7.584', 'learning_rate': '2e-05', 'epoch': '0.3492'}
+{'loss': '0.7477', 'grad_norm': '4.303', 'learning_rate': '1.905e-05', 'epoch': '0.381'}
+{'loss': '0.6894', 'grad_norm': '7.121', 'learning_rate': '1.81e-05', 'epoch': '0.4127'}
+{'loss': '0.7495', 'grad_norm': '7.775', 'learning_rate': '1.714e-05', 'epoch': '0.4444'}
+{'loss': '0.6393', 'grad_norm': '3', 'learning_rate': '1.619e-05', 'epoch': '0.4762'}
+{'loss': '0.64', 'grad_norm': '13.67', 'learning_rate': '1.524e-05', 'epoch': '0.5079'}
+{'loss': '0.7094', 'grad_norm': '96.27', 'learning_rate': '1.438e-05', 'epoch': '0.5397'}
+{'loss': '0.9179', 'grad_norm': '2.935', 'learning_rate': '1.343e-05', 'epoch': '0.5714'}
+{'loss': '0.6297', 'grad_norm': '2.827', 'learning_rate': '1.248e-05', 'epoch': '0.6032'}
+{'loss': '0.6228', 'grad_norm': '1.266', 'learning_rate': '1.152e-05', 'epoch': '0.6349'}
+{'loss': '0.6431', 'grad_norm': '4.508', 'learning_rate': '1.057e-05', 'epoch': '0.6667'}
+{'loss': '0.5216', 'grad_norm': '60.08', 'learning_rate': '9.619e-06', 'epoch': '0.6984'}
+{'loss': '0.7317', 'grad_norm': '2.425', 'learning_rate': '8.667e-06', 'epoch': '0.7302'}
+{'loss': '0.565', 'grad_norm': '3.516', 'learning_rate': '7.714e-06', 'epoch': '0.7619'}
+{'loss': '0.6261', 'grad_norm': '1.881', 'learning_rate': '6.762e-06', 'epoch': '0.7937'}
+{'loss': '0.9702', 'grad_norm': '9.14', 'learning_rate': '5.81e-06', 'epoch': '0.8254'}
+{'loss': '0.6515', 'grad_norm': '2.749', 'learning_rate': '4.857e-06', 'epoch': '0.8571'}
+{'loss': '0.5031', 'grad_norm': '2.217', 'learning_rate': '3.905e-06', 'epoch': '0.8889'}
+{'loss': '0.5052', 'grad_norm': '2.16', 'learning_rate': '2.952e-06', 'epoch': '0.9206'}
+{'loss': '0.5842', 'grad_norm': '2.486', 'learning_rate': '2e-06', 'epoch': '0.9524'}
+{'loss': '0.6155', 'grad_norm': '59.99', 'learning_rate': '1.048e-06', 'epoch': '0.9841'}
+{'eval_loss': '0.5287', 'eval_accuracy': '0.75', 'eval_f1_macro': '0.7478', 'eval_f1_micro': '0.75', 'eval_precision_macro': '0.7478', 'eval_recall_macro': '0.7538', 'eval_runtime': '20.26', 'eval_samples_per_second': '6.317', 'eval_steps_per_second': '3.159', 'epoch': '1'}
+Writing model shards: 100%|██████████████████████| 1/1 [00:00<00:00,  6.66it/s]
+{'train_runtime': '492.6', 'train_samples_per_second': '1.277', 'train_steps_per_second': '0.639', 'train_loss': '0.6661', 'epoch': '1'}
+100%|████████████████████████████████████████| 315/315 [08:12<00:00,  1.56s/it]
+100%|██████████████████████████████████████████| 64/64 [00:19<00:00,  3.20it/s]
+
+--- FINAL STRATIFIED EVALUATION ---
+100%|██████████████████████████████████████████| 85/85 [00:29<00:00,  2.88it/s]
+
+Global Classification Report:
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.62      0.86      0.72        77
+typically_developing       0.83      0.57      0.67        92
+
+            accuracy                           0.70       169
+           macro avg       0.72      0.71      0.70       169
+        weighted avg       0.73      0.70      0.69       169
+
+
+Results for Gender: M
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.72      0.84      0.78        62
+typically_developing       0.73      0.57      0.64        47
+
+            accuracy                           0.72       109
+           macro avg       0.73      0.71      0.71       109
+        weighted avg       0.73      0.72      0.72       109
+
+
+Results for Gender: F
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.41      0.93      0.57        15
+typically_developing       0.96      0.56      0.70        45
+
+            accuracy                           0.65        60
+           macro avg       0.69      0.74      0.64        60
+        weighted avg       0.82      0.65      0.67        60
+
+wandb: 
+wandb: Run history:
+wandb:       best_val_f1_macro ▁
+wandb:           eval/accuracy ▁▁▁
+wandb:           eval/f1_macro ▁▁▁
+wandb:           eval/f1_micro ▁▁
+wandb:               eval/loss ▁▁▁
+wandb:    eval/precision_macro ▁▁▁
+wandb:       eval/recall_macro ▁▁▁
+wandb:            eval/runtime █▁
+wandb: eval/samples_per_second ▁█
+wandb:   eval/steps_per_second ▁█
+wandb:                     +26 ...
+wandb: 
+wandb: Run summary:
+wandb:       best_val_f1_macro 0.74778
+wandb:           eval/accuracy 0.75
+wandb:           eval/f1_macro 0.74778
+wandb:           eval/f1_micro 0.75
+wandb:               eval/loss 0.52869
+wandb:    eval/precision_macro 0.7478
+wandb:       eval/recall_macro 0.75375
+wandb:            eval/runtime 20.1854
+wandb: eval/samples_per_second 6.341
+wandb:   eval/steps_per_second 3.171
+wandb:                     +31 ...
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /home/user/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology/wandb/offline-run-20260905_103849-cr1jqory
+wandb: Find logs at: ./wandb/offline-run-20260905_103849-cr1jqory/logs
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+(r7a_group8) user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ script terminal_log.txt
+Script started, output log file is 'terminal_log.txt'.
+user@user-HP-Z4-G4-Workstation:~/r7a_group8/Multimodal-LLMs-are-not-all-you-need-for-Pediatric-Speech-Language-Pathology$ 
+
