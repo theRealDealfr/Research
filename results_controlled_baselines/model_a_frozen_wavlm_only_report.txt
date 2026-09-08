@@ -1,0 +1,40 @@
+=== Model A (Frozen WavLM Only) ===
+Optimal Learning Rate: 0.001
+Val Accuracy: 0.9141 | Val Macro F1: 0.9129
+
+Global Test Classification Report:
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.80      0.92      0.86        77
+typically_developing       0.93      0.80      0.86        92
+
+            accuracy                           0.86       169
+           macro avg       0.86      0.86      0.86       169
+        weighted avg       0.87      0.86      0.86       169
+
+Confusion Matrix:
+[[71  6]
+ [18 74]]
+
+--- Gender M Breakdown (N=109) ---
+Acc: 0.8624 | Macro F1: 0.8585
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.86      0.90      0.88        62
+typically_developing       0.86      0.81      0.84        47
+
+            accuracy                           0.86       109
+           macro avg       0.86      0.86      0.86       109
+        weighted avg       0.86      0.86      0.86       109
+
+--- Gender F Breakdown (N=60) ---
+Acc: 0.8500 | Macro F1: 0.8291
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.62      1.00      0.77        15
+typically_developing       1.00      0.80      0.89        45
+
+            accuracy                           0.85        60
+           macro avg       0.81      0.90      0.83        60
+        weighted avg       0.91      0.85      0.86        60
+

@@ -69,6 +69,7 @@ parser.add_argument("--pitch_shift_max", type=int, default=8, help="Maximum abso
 
 parser.add_argument("--random_seed", type=int, help="Seed for Run (Init/Shuffle/Val-Split)")
 parser.add_argument("--doTest", type=bool, default=True, help="should evaluate on test?")
+parser.add_argument("--check_only", type=str2bool, default=False, help="Run only gradient and sanity checks without training")
 
 TEST_SPLIT_SEED = 42 
 
@@ -370,10 +371,15 @@ class AAFFModel(nn.Module):
         # [batch, time, 1024]
         hidden_states = outputs.last_hidden_state
 
-        # Masked average pooling: ignore padded audio positions
-        mask = attention_mask.unsqueeze(-1).expand(hidden_states.size()).float()
-
-        pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+        if attention_mask is not None:
+            feature_mask = self.wavlm._get_feature_vector_attention_mask(
+                hidden_states.shape[1],
+                attention_mask
+            )
+            mask = feature_mask.unsqueeze(-1).expand(hidden_states.size()).float()
+            pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+        else:
+            pooled = hidden_states.mean(dim=1)
 
         # Age:
         # [batch] -> [batch, 1]
@@ -446,50 +452,56 @@ wandb.init(project=args.wandb_project, config=args)
 
 
 
-for param in model.parameters():
-    param.requires_grad = False
+print("\n[Gradient Check]")
 
-    print("\n[Gradient Check]")
+sample = dataset_train[0]
 
-    sample = dataset_train[0]
+model.train()
 
-    model.train()
+test_input = torch.tensor(
+    sample["input_values"],
+    dtype=torch.float32
+).unsqueeze(0).to(model.wavlm.device)
 
-    test_input = torch.tensor(
-        sample["input_values"],
-        dtype=torch.float32
-    ).unsqueeze(0).to(model.wavlm.device)
+test_age = torch.tensor(
+    [sample["age"]],
+    dtype=torch.float32
+).to(model.wavlm.device)
 
-    test_age = torch.tensor(
-        [sample["age"]],
-        dtype=torch.float32
-    ).to(model.wavlm.device)
+test_label = torch.tensor(
+    [sample["labels"]],
+    dtype=torch.long
+).to(model.wavlm.device)
 
-    test_label = torch.tensor(
-        [sample["labels"]],
-        dtype=torch.long
-    ).to(model.wavlm.device)
+test_attention_mask = torch.tensor(
+    sample["attention_mask"],
+    dtype=torch.long
+).unsqueeze(0).to(test_input.device)
 
-    test_output = model(
-        input_values=test_input,
-        age=test_age
-    )
+test_output = model(
+    input_values=test_input,
+    attention_mask=test_attention_mask,
+    age=test_age
+)
 
-    test_logits = test_output["logits"]
+test_logits = test_output["logits"]
 
-    loss_fct = nn.CrossEntropyLoss()
-    test_loss = loss_fct(test_logits, test_label)
+loss_fct = nn.CrossEntropyLoss()
+test_loss = loss_fct(test_logits, test_label)
 
-    test_loss.backward()
+test_loss.backward()
 
-    print("Loss:", test_loss.item())
-    print("Projection gradient:", model.projection[0].weight.grad.norm().item())
-    print("Classifier gradient:", model.classifier.weight.grad.norm().item())
+print("Loss:", test_loss.item())
+print("Projection gradient:", model.projection[0].weight.grad.norm().item())
+print("Classifier gradient:", model.classifier.weight.grad.norm().item())
 
+wavlm_has_grad = any(p.grad is not None and p.grad.abs().sum().item() > 0 for p in model.wavlm.parameters())
+print("WavLM gradients active:", wavlm_has_grad)
 
-    
-   
-    trainer = WeightedTrainer(
+# Reset gradients so gradient check doesn't pollute training
+model.zero_grad()
+
+trainer = WeightedTrainer(
     model=model, 
     args=training_args, 
     train_dataset=dataset_train, 
@@ -503,7 +515,7 @@ print("\n[AAFF Sanity Check]")
 
 sample = dataset_train[0]
 
-print("Input keys:", sample.keys())
+print("Input keys:", list(sample.keys()))
 print("Age:", sample["age"])
 print("Labels:", sample["labels"])
 
@@ -518,8 +530,14 @@ with torch.no_grad():
         dtype=torch.float32
     ).to(model.wavlm.device)
 
+    test_attention_mask = torch.tensor(
+        sample["attention_mask"],
+        dtype=torch.long
+    ).unsqueeze(0).to(test_input.device)
+
     test_output = model(
         input_values=test_input,
+        attention_mask=test_attention_mask,
         age=test_age
     )
 
@@ -527,6 +545,11 @@ print("Logits shape:", test_output["logits"].shape)
 print("Expected:", (1, len(unique_labels)))
 
 print("[AAFF Sanity Check] PASSED")
+
+if args.check_only:
+    print("\n[Check-Only Mode] Completed all checks successfully. Exiting before training.")
+    wandb.finish()
+    exit(0)
 
 trainer.train()
 
