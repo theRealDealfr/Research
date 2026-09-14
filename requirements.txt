@@ -1,0 +1,26 @@
+# Core Machine Learning & PyTorch
+torch
+torchaudio
+transformers
+datasets
+accelerate
+
+# Audio Processing
+soundfile
+librosa
+soxr
+audiomentations
+
+# Data Analysis & Metrics
+scikit-learn
+pandas
+numpy
+
+# Experiment Tracking
+wandb
+
+# Interactive Serving & Web Application
+fastapi
+uvicorn
+python-multipart
+jinja2
