@@ -15,6 +15,7 @@ audiomentations
 scikit-learn
 pandas
 numpy
+imbalanced-learn
 
 # Experiment Tracking
 wandb
