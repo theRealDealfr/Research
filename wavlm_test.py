@@ -22,6 +22,9 @@ from audiomentations import PitchShift, AddGaussianNoise
 from torch import nn
 import warnings
 import random
+import io
+import soundfile as sf
+import librosa
 
 
 def str2bool(v):
@@ -69,6 +72,8 @@ parser.add_argument("--pitch_shift_max", type=int, default=8, help="Maximum abso
 
 parser.add_argument("--random_seed", type=int, help="Seed for Run (Init/Shuffle/Val-Split)")
 parser.add_argument("--doTest", type=bool, default=True, help="should evaluate on test?")
+parser.add_argument("--check_only", type=str2bool, default=False, help="Run only data/split checks and exit before training")
+parser.add_argument("--use_wandb", type=str2bool, default=False, help="Enable W&B logging (requires login)")
 
 TEST_SPLIT_SEED = 42 
 
@@ -106,6 +111,9 @@ OUTPUT_DIR = f"./results_{args.target_column}_{safe_model_name}_seed{args.random
 
 
 dataset = load_dataset(DATASET_NAME, split="train")
+# Cast to decode=False so that filter/map on labels doesn't trigger audio decoding
+# (newer HuggingFace datasets requires torchcodec for audio decode — we avoid it here)
+dataset = dataset.cast_column("audio", Audio(decode=False))
 
 def add_speaker_ids(dataset):
     print("Extracting Speaker IDs...")
@@ -241,13 +249,46 @@ print("\n[Auto-Weights] Calculated Loss Penalties:")
 for idx, label in id2label.items():
     print(f"   - {label}: {CLASS_WEIGHTS_TENSOR[idx]:.2f}x")
 
+# ── CHECK-ONLY EXIT (before any model loading) ──────────────────────────
+if args.check_only:
+    print("\n" + "="*60)
+    print("[CHECK-ONLY MODE] Data pipeline verified. Summary:")
+    print(f"  Target column  : {args.target_column}")
+    print(f"  Model          : {args.model_checkpoint}")
+    print(f"  Classes ({len(unique_labels)})     : {unique_labels}")
+    print(f"  Train samples  : {len(dataset_train)} (after balancing)")
+    print(f"  Val   samples  : {len(dataset_val)} (unchanged)")
+    print(f"  Test  samples  : {len(dataset_test)} (unchanged)")
+    print(f"  Class weights  : { {label: round(CLASS_WEIGHTS_TENSOR[i].item(),3) for i, label in id2label.items()} }")
+    print("[CHECK-ONLY MODE] Exiting before model load / training.")
+    print("="*60)
+    exit(0)
 
 feature_extractor = AutoFeatureExtractor.from_pretrained(args.model_checkpoint)
 target_sr = feature_extractor.sampling_rate
 
-dataset_train = dataset_train.cast_column("audio", Audio(sampling_rate=target_sr))
-dataset_val = dataset_val.cast_column("audio", Audio(sampling_rate=target_sr))
-dataset_test = dataset_test.cast_column("audio", Audio(sampling_rate=target_sr))
+# Age normalization bounds from training set only
+train_ages = np.array([float(x) for x in dataset_train["age"]])
+AGE_MIN = float(train_ages.min())
+AGE_MAX = float(train_ages.max())
+print(f"\n[Age Normalization] Training age range: {AGE_MIN:.2f} - {AGE_MAX:.2f}")
+
+def normalize_age(age):
+    return max(0.0, min(1.0, (float(age) - AGE_MIN) / (AGE_MAX - AGE_MIN)))
+
+# Do NOT cast to Audio(sampling_rate=...) — that triggers torchcodec on Windows.
+# Instead keep decode=False and manually decode bytes in the preprocess functions.
+# (same pattern as extract_wavlm_embeddings.py)
+
+def decode_audio(audio_dict):
+    """Decode raw audio bytes with soundfile, resample to target_sr with librosa."""
+    raw = audio_dict.get("bytes") or open(audio_dict["path"], "rb").read()
+    arr, sr = sf.read(io.BytesIO(raw), dtype="float32")
+    if arr.ndim > 1:          # stereo -> mono
+        arr = arr.mean(axis=1)
+    if sr != target_sr:
+        arr = librosa.resample(arr, orig_sr=sr, target_sr=target_sr)
+    return arr.astype(np.float32)
 
 p_min = min(args.pitch_shift_min, args.pitch_shift_max)
 p_max = max(args.pitch_shift_min, args.pitch_shift_max)
@@ -262,7 +303,7 @@ augmenter_pitch_down = PitchShift(min_semitones=-p_max, max_semitones=-p_min, p=
 augmenter_noise = AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=1.0)
 
 def preprocess_train(batch):
-    audio_arrays = [x["array"] for x in batch["audio"]]
+    audio_arrays = [decode_audio(x) for x in batch["audio"]]
     genders = batch["gender"]
     processed = []
     
@@ -282,12 +323,14 @@ def preprocess_train(batch):
         
     inputs = feature_extractor(processed, sampling_rate=target_sr, max_length=int(target_sr * MAX_DURATION), truncation=True, padding=True)
     inputs["labels"] = batch["labels"]
+    inputs["age"] = [normalize_age(a) for a in batch["age"]]
     return inputs
 
 def preprocess_val(batch):
-    audio_arrays = [x["array"] for x in batch["audio"]]
+    audio_arrays = [decode_audio(x) for x in batch["audio"]]
     inputs = feature_extractor(audio_arrays, sampling_rate=target_sr, max_length=int(target_sr * MAX_DURATION), truncation=True, padding=True)
     inputs["labels"] = batch["labels"]
+    inputs["age"] = [normalize_age(a) for a in batch["age"]]
     return inputs
 
 dataset_train.set_transform(preprocess_train)
@@ -318,51 +361,39 @@ def compute_metrics(eval_pred):
 
 
 
-try:
-    model = AutoModelForAudioClassification.from_pretrained(
-        args.model_checkpoint, 
-        num_labels=len(unique_labels), 
-        label2id=label2id, 
-        id2label=id2label, 
-        ignore_mismatched_sizes=True,
-        use_safetensors=True
-    )
-except OSError:
-    
-    model = AutoModelForAudioClassification.from_pretrained(
-        args.model_checkpoint, 
-        num_labels=len(unique_labels), 
-        label2id=label2id, 
-        id2label=id2label, 
-        ignore_mismatched_sizes=True,
-        trust_remote_code=True,
-        use_safetensors=True
-    )
+model = AutoModelForAudioClassification.from_pretrained(
+    args.model_checkpoint,
+    num_labels=len(unique_labels),
+    label2id=label2id,
+    id2label=id2label,
+    ignore_mismatched_sizes=True,
+)
 
 model.freeze_feature_encoder()
+print(f"\n[Model] Loaded: {args.model_checkpoint}")
+print(f"[Model] Num labels: {len(unique_labels)} -> {unique_labels}")
+print(f"[Model] Feature encoder frozen.")
 
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     eval_strategy="epoch",
     save_strategy="epoch",
-    
     learning_rate=args.learning_rate,
     gradient_accumulation_steps=args.gradient_accumulation,
     num_train_epochs=args.epochs,
     per_device_train_batch_size=args.batch_size,
     per_device_eval_batch_size=args.batch_size,
-    
     load_best_model_at_end=True,
     metric_for_best_model="f1_macro",
     fp16=torch.cuda.is_available(),
     remove_unused_columns=False,
-    report_to="wandb",
+    report_to="wandb" if args.use_wandb else "none",
     run_name=f"{args.target_column}_balanced",
     logging_steps=10
 )
 
-
-wandb.init(project=args.wandb_project, config=args)
+if args.use_wandb:
+    wandb.init(project=args.wandb_project, config=args)
 
 trainer = WeightedTrainer(
     model=model, 
@@ -380,15 +411,15 @@ final_eval_metrics = trainer.evaluate()
 
 
 
-wandb.log({
-    "eval/loss": final_eval_metrics["eval_loss"],
-    "eval/accuracy": final_eval_metrics["eval_accuracy"],
-    "eval/f1_macro": final_eval_metrics["eval_f1_macro"],
-    "eval/precision_macro": final_eval_metrics["eval_precision_macro"],
-    "eval/recall_macro": final_eval_metrics["eval_recall_macro"],
-    
-    "best_val_f1_macro": final_eval_metrics["eval_f1_macro"]
-})
+if args.use_wandb:
+    wandb.log({
+        "eval/loss": final_eval_metrics["eval_loss"],
+        "eval/accuracy": final_eval_metrics["eval_accuracy"],
+        "eval/f1_macro": final_eval_metrics["eval_f1_macro"],
+        "eval/precision_macro": final_eval_metrics["eval_precision_macro"],
+        "eval/recall_macro": final_eval_metrics["eval_recall_macro"],
+        "best_val_f1_macro": final_eval_metrics["eval_f1_macro"]
+    })
 
 
 if args.doTest:
@@ -407,15 +438,16 @@ if args.doTest:
     print(report_text)
     with open(os.path.join(OUTPUT_DIR, "global_report.txt"), "w") as f: f.write(report_text)
     
-    wandb.log({
-        "test_global/f1_macro": report_dict['macro avg']['f1-score'],
-        "test_global/f1_micro": report_dict['accuracy'],
-        "test_global/precision_macro": report_dict['macro avg']['precision'],
-        "test_global/recall_macro": report_dict['macro avg']['recall'],
-        "test_conf_mat_global": wandb.plot.confusion_matrix(
-            probs=None, y_true=list(y_true), preds=list(y_pred), class_names=unique_labels
-        )
-    })
+    if args.use_wandb:
+        wandb.log({
+            "test_global/f1_macro": report_dict['macro avg']['f1-score'],
+            "test_global/f1_micro": report_dict['accuracy'],
+            "test_global/precision_macro": report_dict['macro avg']['precision'],
+            "test_global/recall_macro": report_dict['macro avg']['recall'],
+            "test_conf_mat_global": wandb.plot.confusion_matrix(
+                probs=None, y_true=list(y_true), preds=list(y_pred), class_names=unique_labels
+            )
+        })
     
     
     for gender in ['M', 'F']:
@@ -431,16 +463,18 @@ if args.doTest:
             print(f"\nResults for Gender: {gender}")
             print(report_text)
             
-            wandb.log({
-                f"test_{gender}/f1_macro": rep_dict['macro avg']['f1-score'],
-                f"test_{gender}/f1_micro": rep_dict['accuracy'],
-                f"test_{gender}/precision_macro": rep_dict['macro avg']['precision'],
-                f"test_{gender}/recall_macro": rep_dict['macro avg']['recall'],
-                f"test_conf_mat_{gender}": wandb.plot.confusion_matrix(
-                    probs=None, y_true=g_true, preds=g_pred, class_names=unique_labels
-                )
-            })
+            if args.use_wandb:
+                wandb.log({
+                    f"test_{gender}/f1_macro": rep_dict['macro avg']['f1-score'],
+                    f"test_{gender}/f1_micro": rep_dict['accuracy'],
+                    f"test_{gender}/precision_macro": rep_dict['macro avg']['precision'],
+                    f"test_{gender}/recall_macro": rep_dict['macro avg']['recall'],
+                    f"test_conf_mat_{gender}": wandb.plot.confusion_matrix(
+                        probs=None, y_true=g_true, preds=g_pred, class_names=unique_labels
+                    )
+                })
             
             with open(os.path.join(OUTPUT_DIR, f"report_{gender}.txt"), "w") as f: f.write(report_text)
 
-wandb.finish()
+if args.use_wandb:
+    wandb.finish()
