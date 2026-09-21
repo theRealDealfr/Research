@@ -40,7 +40,7 @@ class AAFFDisorderClassifier(nn.Module):
 def run_hierarchical_evaluation():
     test_cache_path = "./cached_embeddings/wavlm_full_test_hierarchical.pt"
     stage1_ckpt = "./results_controlled_baselines/model_c_aaff_best.pt"
-    stage2_ckpt = "./results_controlled_baselines/model_stage2_disorder_best.pt"
+    stage2_ckpt = "./results_controlled_baselines/model_stage2_disorder_bayesian_best.pt"
 
     if not os.path.exists(test_cache_path):
         print(f"Error: {test_cache_path} not found. Please run extract_stage2_embeddings.py first.")
@@ -55,13 +55,21 @@ def run_hierarchical_evaluation():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Running evaluation on device: {device}")
 
-    # Load Models
-    stage1_model = ModelC_AAFF(in_features=1025, proj_dim=256, dropout=0.2, num_classes=2).to(device)
-    stage1_model.load_state_dict(torch.load(stage1_ckpt, map_location=device, weights_only=True))
+    # Load Models - auto-detect architecture from checkpoint weight shapes
+    s1_state = torch.load(stage1_ckpt, map_location=device, weights_only=True)
+    s1_proj_dim = s1_state["projection.0.weight"].shape[0]
+    s1_num_classes = s1_state["classifier.weight"].shape[0]
+    print(f"Stage 1 checkpoint: proj_dim={s1_proj_dim}, num_classes={s1_num_classes}")
+    stage1_model = ModelC_AAFF(in_features=1025, proj_dim=s1_proj_dim, dropout=0.2, num_classes=s1_num_classes).to(device)
+    stage1_model.load_state_dict(s1_state)
     stage1_model.eval()
 
-    stage2_model = AAFFDisorderClassifier(in_features=1025, proj_dim=256, dropout=0.2, num_classes=4).to(device)
-    stage2_model.load_state_dict(torch.load(stage2_ckpt, map_location=device, weights_only=True))
+    s2_state = torch.load(stage2_ckpt, map_location=device, weights_only=True)
+    s2_proj_dim = s2_state["projection.0.weight"].shape[0]
+    s2_num_classes = s2_state["classifier.weight"].shape[0]
+    print(f"Stage 2 checkpoint: proj_dim={s2_proj_dim}, num_classes={s2_num_classes}")
+    stage2_model = AAFFDisorderClassifier(in_features=1025, proj_dim=s2_proj_dim, dropout=0.2, num_classes=s2_num_classes).to(device)
+    stage2_model.load_state_dict(s2_state)
     stage2_model.eval()
 
     # Load Full Test Cache

@@ -1,0 +1,57 @@
+program: train_unified_models.py
+method: bayes
+run_cap: 25
+metric:
+  name: eval/f1_macro
+  goal: maximize
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - ${args}
+
+parameters:
+  target_column:
+    values: ["disorder_type", "disorder_symptom"]
+  
+  model_architecture:
+    value: "C"
+  
+  model_checkpoint:
+    value: "microsoft/wavlm-large"
+
+  exclude_healthy:
+    value: true
+
+  learning_rate:
+    distribution: log_uniform_values
+    min: 0.00001
+    max: 0.0005
+
+  gradient_accumulation:
+    values: [1, 2, 4, 8]
+
+  oversample_mult:
+    values: [1, 2, 3, 5, 8]
+
+  batch_size:
+    value: 16
+
+  epochs:
+    value: 10
+
+  pitch_prob:
+    values: [0.3, 0.5]
+
+  aug_male:
+    value: true
+
+  aug_female:
+    value: true
+
+  wandb_mode:
+    value: "online"
+
+  tune_mode:
+    value: false

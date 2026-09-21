@@ -1,0 +1,7 @@
+{
+    "learning_rate": 0.004092527415963917,
+    "weight_decay": 0.05680647934742192,
+    "dropout": 0.2,
+    "proj_dim": 512,
+    "batch_size": 8
+}
