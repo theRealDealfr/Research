@@ -19,6 +19,7 @@ imbalanced-learn
 
 # Experiment Tracking
 wandb
+optuna
 
 # Interactive Serving & Web Application
 fastapi

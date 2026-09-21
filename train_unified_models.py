@@ -1,0 +1,587 @@
+import argparse
+import datetime
+import json
+import os
+import re
+import random
+import warnings
+import torch
+import numpy as np
+import pandas as pd
+from datasets import load_dataset, Audio, ClassLabel, concatenate_datasets
+import wandb
+from transformers import (
+    AutoFeatureExtractor,
+    AutoModel,
+    TrainingArguments,
+    Trainer,
+    set_seed,
+    EarlyStoppingCallback
+)
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report
+from sklearn.model_selection import train_test_split as sklearn_split
+from audiomentations import PitchShift, AddGaussianNoise
+from torch import nn
+
+warnings.filterwarnings("ignore", message="Was asked to gather along dimension 0")
+TEST_SPLIT_SEED = 42 
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+def get_parser():
+    parser = argparse.ArgumentParser(description="Train Audio Classifier for T2 and T3 with Models A, B, C")
+    
+    parser.add_argument("--target_column", type=str, required=True, 
+                        choices=["disorder_type", "disorder_symptom"],
+                        help="The column to classify (disorder_type=T2, disorder_symptom=T3)")
+    parser.add_argument("--model_architecture", type=str, required=True, 
+                        choices=["A", "B", "C"],
+                        help="Model architecture: A(Frozen WavLM), B(WavLM+Age), C(WavLM+AAFF)")
+    parser.add_argument("--model_checkpoint", type=str, default="microsoft/wavlm-large", 
+                        help="HuggingFace model hub checkpoint")
+    parser.add_argument("--wandb_project", type=str, default="SLP-Gender-CDA", help="W&B Project name")
+    parser.add_argument("--wandb_mode", type=str, default="offline", choices=["online", "offline", "disabled"],
+                        help="Weights & Biases mode (online, offline, disabled)")
+    parser.add_argument("--config_json", type=str, default=None,
+                        help="Path to JSON file with tuned hyperparameters (overrides lr, grad_accum, oversample_mult)")
+
+    parser.add_argument("--exclude_healthy", type=str2bool, default=True, 
+                        help="If True, removes 'typically_developing' samples from the dataset")
+
+    parser.add_argument("--aug_male", type=str2bool, default=True, help="Apply augmentations to Male samples")
+    parser.add_argument("--aug_female", type=str2bool, default=True, help="Apply augmentations to Female samples")
+
+    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--learning_rate", type=float, default=3e-5)
+    parser.add_argument("--gradient_accumulation", type=int, default=2)
+    parser.add_argument("--oversample_mult", type=int, default=5, help="Max duplication factor for balancing")
+    parser.add_argument("--pitch_prob", type=float, default=0.5, help="Probability of applying pitch shift")
+    parser.add_argument("--noise_prob", type=float, default=0.0, help="Probability of applying Gaussian noise")
+    parser.add_argument("--pitch_shift_min", type=int, default=6)
+    parser.add_argument("--pitch_shift_max", type=int, default=8)
+
+    parser.add_argument("--random_seed", type=int, default=None, help="Seed for Run (Init/Shuffle/Val-Split)")
+    parser.add_argument("--doTest", type=str2bool, default=True, help="should evaluate on test?")
+    parser.add_argument("--check_only", type=str2bool, default=False, help="Run only gradient checks")
+    parser.add_argument("--tune_mode", type=str2bool, default=False, 
+                        help="If True, run in HPO tuning mode (skip test evaluation, return val metrics)")
+    
+    return parser
+
+
+# ===============================
+# MODEL ARCHITECTURES
+# ===============================
+
+class ModelA(nn.Module):
+    """Frozen WavLM -> Classifier"""
+    def __init__(self, backbone, num_labels):
+        super().__init__()
+        self.wavlm = backbone
+        self.config = backbone.config
+        self.config.num_labels = num_labels
+        self.classifier = nn.Linear(1024, num_labels)
+        
+    def forward(self, input_values=None, attention_mask=None, age=None, labels=None, **kwargs):
+        outputs = self.wavlm(input_values=input_values, attention_mask=attention_mask)
+        hidden_states = outputs.last_hidden_state
+        if attention_mask is not None:
+            feature_mask = self.wavlm._get_feature_vector_attention_mask(hidden_states.shape[1], attention_mask)
+            mask = feature_mask.unsqueeze(-1).expand(hidden_states.size()).float()
+            pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+        else:
+            pooled = hidden_states.mean(dim=1)
+        return {"logits": self.classifier(pooled)}
+
+class ModelB(nn.Module):
+    """Frozen WavLM + Concatenated Raw Age -> Classifier"""
+    def __init__(self, backbone, num_labels):
+        super().__init__()
+        self.wavlm = backbone
+        self.config = backbone.config
+        self.config.num_labels = num_labels
+        self.classifier = nn.Linear(1025, num_labels)
+        
+    def forward(self, input_values=None, attention_mask=None, age=None, labels=None, **kwargs):
+        outputs = self.wavlm(input_values=input_values, attention_mask=attention_mask)
+        hidden_states = outputs.last_hidden_state
+        if attention_mask is not None:
+            feature_mask = self.wavlm._get_feature_vector_attention_mask(hidden_states.shape[1], attention_mask)
+            mask = feature_mask.unsqueeze(-1).expand(hidden_states.size()).float()
+            pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+        else:
+            pooled = hidden_states.mean(dim=1)
+            
+        age = age.float().view(-1, 1)
+        fused = torch.cat([pooled, age], dim=1)
+        return {"logits": self.classifier(fused)}
+
+class ModelC(nn.Module):
+    """Frozen WavLM + Age -> AAFF Projection -> Classifier"""
+    def __init__(self, backbone, num_labels, proj_dropout=0.2):
+        super().__init__()
+        self.wavlm = backbone
+        self.config = backbone.config
+        self.config.num_labels = num_labels
+        self.projection = nn.Sequential(
+            nn.Linear(1025, 256),
+            nn.ReLU(),
+            nn.Dropout(proj_dropout)
+        )
+        self.classifier = nn.Linear(256, num_labels)
+
+    def forward(self, input_values=None, attention_mask=None, age=None, labels=None, **kwargs):
+        outputs = self.wavlm(input_values=input_values, attention_mask=attention_mask)
+        hidden_states = outputs.last_hidden_state
+        if attention_mask is not None:
+            feature_mask = self.wavlm._get_feature_vector_attention_mask(hidden_states.shape[1], attention_mask)
+            mask = feature_mask.unsqueeze(-1).expand(hidden_states.size()).float()
+            pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+        else:
+            pooled = hidden_states.mean(dim=1)
+
+        age = age.float().view(-1, 1)
+        fused = torch.cat([pooled, age], dim=1)
+        projected = self.projection(fused)
+        logits = self.classifier(projected)
+        return {"logits": logits}
+
+
+def compute_metrics(eval_pred):
+    preds = np.argmax(eval_pred.predictions, axis=1)
+    labels = eval_pred.label_ids
+    p_mac, r_mac, f1_mac, _ = precision_recall_fscore_support(labels, preds, average="macro", zero_division=0)
+    acc = accuracy_score(labels, preds)
+    return {
+        "accuracy": acc, "f1_macro": f1_mac, "f1_micro": acc,
+        "precision_macro": p_mac, "recall_macro": r_mac
+    }
+
+
+def add_speaker_ids(dataset):
+    print("Extracting Speaker IDs...")
+    ds_meta = dataset.cast_column("audio", Audio(decode=False))
+    paths = [item['audio']['path'] for item in ds_meta]
+    pattern = re.compile(r"^(?:test_|train_|val_|audio_)?([a-zA-Z0-9]+)[_\-\.]", re.IGNORECASE)
+    speaker_ids = []
+    for p in paths:
+        filename = os.path.basename(p)
+        match = pattern.search(filename)
+        speaker_ids.append(match.group(1) if match else filename)
+    return dataset.add_column("speaker_id", speaker_ids)
+
+
+def balance_dataset(ds, target_col, max_multiplier):
+    labels = ds[target_col]
+    counts = {}
+    for l in labels: counts[l] = counts.get(l, 0) + 1
+    
+    if not counts: return ds
+    
+    majority_count = max(counts.values())
+    dfs = [ds]
+    
+    print(f"\n[Balancing] Initial Distribution: {counts}")
+    print(f"[Balancing] Balancing strategy: Capped at {max_multiplier}x duplicates")
+
+    for label, count in counts.items():
+        if count == majority_count: continue
+        
+        ratio = majority_count / count
+        multiplier = min(int(round(ratio)), max_multiplier)
+        
+        if multiplier > 1:
+            print(f"   -> Oversampling '{label}': {count} -> {multiplier}x (Target ~{count*multiplier})")
+            minority_ds = ds.filter(lambda x: x[target_col] == label)
+            for _ in range(multiplier - 1):
+                dfs.append(minority_ds)
+                
+    if len(dfs) > 1:
+        balanced_ds = concatenate_datasets(dfs)
+        print(f"[Balancing] Final Size: {len(balanced_ds)}")
+        return balanced_ds
+    return ds
+
+
+def run_unified_training(args, raw_dataset=None, preloaded_backbone=None, preloaded_feature_extractor=None, trial_callback=None):
+    """
+    Main training execution function.
+    Can be run via CLI or programmatically by Bayesian optimization tuners.
+    """
+    if isinstance(args, dict):
+        class ArgsObj:
+            def __init__(self, **entries):
+                self.__dict__.update(entries)
+        args = ArgsObj(**args)
+
+    # Load tuned parameters from config_json if provided
+    if getattr(args, "config_json", None) and os.path.exists(args.config_json):
+        print(f"\n[Config] Loading tuned hyperparameters from {args.config_json}...")
+        with open(args.config_json, "r") as f:
+            tuned_params = json.load(f)
+        for k, v in tuned_params.items():
+            if hasattr(args, k):
+                setattr(args, k, v)
+                print(f"   -> Overriding {k} = {v}")
+
+    if not getattr(args, "random_seed", None):
+        args.random_seed = random.randint(0, 10000)
+
+    random.seed(args.random_seed)
+    np.random.seed(args.random_seed)
+    torch.manual_seed(args.random_seed)
+    set_seed(args.random_seed) 
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.random_seed)
+
+    print(f"--- RUN CONFIGURATION ---")
+    print(f"Target Column:        {args.target_column} ({'T2' if args.target_column=='disorder_type' else 'T3'})")
+    print(f"Model Architecture:   Model {args.model_architecture}")
+    print(f"Learning Rate:        {args.learning_rate}")
+    print(f"Gradient Accum:       {args.gradient_accumulation}")
+    print(f"Oversample Multiplier:{args.oversample_mult}")
+    print(f"Epochs:               {args.epochs}")
+    print(f"Batch Size:           {args.batch_size}")
+    print(f"Test Split Seed:      {TEST_SPLIT_SEED}")
+    print(f"Run Seed:             {args.random_seed}")
+    print(f"Mode:                 {'Tuning (Validation Only)' if getattr(args, 'tune_mode', False) else 'Full Training + Test'}")
+    print(f"-------------------------")
+
+    safe_model_name = f"Model{args.model_architecture}_{args.model_checkpoint.replace('/', '-')}"
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    DATASET_NAME = "SAA-Lab/SLPHelmUltraSuitePlus"
+    MAX_DURATION = 12.0 
+    OUTPUT_DIR = f"./results_{args.target_column}_{safe_model_name}_seed{args.random_seed}_{timestamp}"
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    if raw_dataset is not None:
+        dataset = raw_dataset
+    else:
+        dataset = load_dataset(DATASET_NAME, split="train")
+
+    if "speaker_id" not in dataset.column_names:
+        dataset = add_speaker_ids(dataset)
+
+    def clean_and_remap_labels(batch):
+        label = batch[args.target_column]
+        if label is None: return batch
+        label = str(label).replace("['", "").replace("']", "").replace("[", "").replace("]", "")
+        
+        if args.target_column == "disorder_type":
+            if label in ["addition", "omission"]: label = "articulation"
+            elif label == "stuttering": label = "phonological"
+        elif args.target_column == "disorder_symptom":
+            if label in ['substitution_modified', "phonological"]: label = "stuttering" 
+        return {args.target_column: label}
+
+    dataset = dataset.map(clean_and_remap_labels)
+    dataset = dataset.filter(lambda x: x[args.target_column] is not None)
+
+    df = dataset.to_pandas()
+    unique_speakers = sorted(df["speaker_id"].unique())
+
+    train_val_spk, test_spk = sklearn_split(unique_speakers, test_size=0.2, random_state=TEST_SPLIT_SEED)
+    train_spk, val_spk = sklearn_split(train_val_spk, test_size=0.2, random_state=TEST_SPLIT_SEED)
+
+    assert set(train_spk).isdisjoint(set(val_spk)), "Leakage: Train <-> Val"
+    assert set(train_spk).isdisjoint(set(test_spk)), "Leakage: Train <-> Test"
+
+    dataset_train = dataset.filter(lambda x: x["speaker_id"] in train_spk)
+    dataset_val   = dataset.filter(lambda x: x["speaker_id"] in val_spk)
+    dataset_test  = dataset.filter(lambda x: x["speaker_id"] in test_spk)
+
+    if args.exclude_healthy:
+        print(f"\n[Filter] Purging 'typically_developing' samples from all splits...")
+        dataset_train = dataset_train.filter(lambda x: str(x[args.target_column]).strip().lower() != "typically_developing")
+        dataset_val   = dataset_val.filter(lambda x: str(x[args.target_column]).strip().lower() != "typically_developing")
+        dataset_test  = dataset_test.filter(lambda x: str(x[args.target_column]).strip().lower() != "typically_developing")
+
+    all_labels = set(dataset_train[args.target_column]) | set(dataset_val[args.target_column]) | set(dataset_test[args.target_column])
+    unique_labels = sorted(list(all_labels))
+    print(f"Labels the model will learn: {unique_labels}")
+
+    label_feature = ClassLabel(names=unique_labels)
+    label2id = {label: i for i, label in enumerate(unique_labels)}
+    id2label = {i: label for i, label in enumerate(unique_labels)}
+    ALL_LABEL_IDS = list(range(len(unique_labels)))
+
+    dataset_train = dataset_train.map(lambda x: {"labels": label_feature.str2int(x[args.target_column])})
+    dataset_val   = dataset_val.map(lambda x: {"labels": label_feature.str2int(x[args.target_column])})
+    dataset_test  = dataset_test.map(lambda x: {"labels": label_feature.str2int(x[args.target_column])})
+
+    print(f"\n[Split Stats] Seed: {args.random_seed}")
+    print(f"   Train: {len(dataset_train)} samples")
+    print(f"   Val:   {len(dataset_val)} samples")
+    print(f"   Test:  {len(dataset_test)} samples [FIXED SPEAKER SPLIT]")
+
+    print(f"Applying Class Balancing logic to {args.target_column} (Train Set Only)...")
+    dataset_train = balance_dataset(dataset_train, args.target_column, args.oversample_mult)
+
+    train_labels = dataset_train["labels"]
+    class_counts = np.bincount(train_labels, minlength=len(unique_labels))
+    class_counts = np.maximum(class_counts, 1) 
+    total_samples = len(train_labels)
+
+    computed_weights = total_samples / (len(unique_labels) * class_counts)
+    CLASS_WEIGHTS_TENSOR = torch.tensor(computed_weights, dtype=torch.float32)
+
+    print("\n[Auto-Weights] Calculated Loss Penalties:")
+    for idx, label in id2label.items():
+        print(f"   - {label}: {CLASS_WEIGHTS_TENSOR[idx]:.2f}x")
+
+    if preloaded_feature_extractor is not None:
+        feature_extractor = preloaded_feature_extractor
+    else:
+        feature_extractor = AutoFeatureExtractor.from_pretrained(args.model_checkpoint)
+    target_sr = feature_extractor.sampling_rate
+
+    dataset_train = dataset_train.cast_column("audio", Audio(sampling_rate=target_sr))
+    dataset_val = dataset_val.cast_column("audio", Audio(sampling_rate=target_sr))
+    dataset_test = dataset_test.cast_column("audio", Audio(sampling_rate=target_sr))
+
+    train_ages = np.array([float(x) for x in dataset_train["age"]])
+    AGE_MIN = train_ages.min()
+    AGE_MAX = train_ages.max()
+
+    def normalize_age(age):
+        age = float(age)
+        return (age - AGE_MIN) / max(AGE_MAX - AGE_MIN, 1e-6)
+
+    p_min = min(args.pitch_shift_min, args.pitch_shift_max)
+    p_max = max(args.pitch_shift_min, args.pitch_shift_max)
+
+    augmenter_pitch_up = PitchShift(min_semitones=p_min, max_semitones=p_max, p=1.0)
+    augmenter_pitch_down = PitchShift(min_semitones=-p_max, max_semitones=-p_min, p=1.0)
+    augmenter_noise = AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=1.0)
+
+    def preprocess_train(batch):
+        audio_arrays = [x["array"] for x in batch["audio"]]
+        genders = batch["gender"]
+        processed = []
+        for x, g in zip(audio_arrays, genders):
+            if np.random.rand() < args.pitch_prob:
+                if g == 'M' and args.aug_male:
+                    x = augmenter_pitch_up(samples=x, sample_rate=target_sr)
+                elif g == 'F' and args.aug_female:
+                    x = augmenter_pitch_down(samples=x, sample_rate=target_sr)
+            if args.noise_prob > 0 and np.random.rand() < args.noise_prob:
+                x = augmenter_noise(samples=x, sample_rate=target_sr)
+            processed.append(x)
+            
+        inputs = feature_extractor(processed, sampling_rate=target_sr, max_length=int(target_sr * MAX_DURATION), truncation=True, padding=True)
+        inputs["labels"] = batch["labels"]
+        inputs["age"] = [normalize_age(a) for a in batch["age"]]
+        return inputs
+
+    def preprocess_val(batch):
+        audio_arrays = [x["array"] for x in batch["audio"]]
+        inputs = feature_extractor(audio_arrays, sampling_rate=target_sr, max_length=int(target_sr * MAX_DURATION), truncation=True, padding=True)
+        inputs["age"] = [normalize_age(a) for a in batch["age"]]
+        inputs["labels"] = batch["labels"]
+        return inputs
+
+    dataset_train.set_transform(preprocess_train)
+    dataset_val.set_transform(preprocess_val)
+    dataset_test.set_transform(preprocess_val)
+
+    class WeightedTrainer(Trainer):
+        def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+            labels = inputs.get("labels")
+            outputs = model(**inputs)
+            logits = outputs.get("logits")
+            weights = CLASS_WEIGHTS_TENSOR.to(labels.device)
+            loss_fct = nn.CrossEntropyLoss(weight=weights)
+            loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+            return (loss, outputs) if return_outputs else loss
+
+    if preloaded_backbone is not None:
+        backbone = preloaded_backbone
+    else:
+        backbone = AutoModel.from_pretrained(args.model_checkpoint, use_safetensors=True)
+
+    if args.model_architecture == "A":
+        model = ModelA(backbone=backbone, num_labels=len(unique_labels))
+    elif args.model_architecture == "B":
+        model = ModelB(backbone=backbone, num_labels=len(unique_labels))
+    elif args.model_architecture == "C":
+        model = ModelC(backbone=backbone, num_labels=len(unique_labels))
+    else:
+        raise ValueError("Invalid model architecture chosen.")
+
+    for param in model.wavlm.parameters():
+        param.requires_grad = False
+
+    wandb_mode = getattr(args, "wandb_mode", "offline")
+    use_wandb = (wandb_mode != "disabled" and not getattr(args, "tune_mode", False) and not args.check_only)
+    
+    report_to = "wandb" if use_wandb else "none"
+
+    training_args = TrainingArguments(
+        output_dir=OUTPUT_DIR,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        learning_rate=args.learning_rate,
+        gradient_accumulation_steps=args.gradient_accumulation,
+        num_train_epochs=args.epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size,
+        load_best_model_at_end=True,
+        metric_for_best_model="f1_macro",
+        fp16=False,
+        remove_unused_columns=False,
+        report_to=report_to,
+        run_name=f"{args.target_column}_Model{args.model_architecture}_seed{args.random_seed}",
+        logging_steps=10
+    )
+
+    print("\n[Gradient Check]")
+    sample = dataset_train[0]
+    model.train()
+    test_input = torch.tensor(sample["input_values"], dtype=torch.float32).unsqueeze(0).to(model.wavlm.device)
+    test_age = torch.tensor([sample["age"]], dtype=torch.float32).to(model.wavlm.device)
+    test_label = torch.tensor([sample["labels"]], dtype=torch.long).to(model.wavlm.device)
+    test_attention_mask = torch.tensor(sample["attention_mask"], dtype=torch.long).unsqueeze(0).to(test_input.device)
+
+    test_output = model(input_values=test_input, attention_mask=test_attention_mask, age=test_age)
+    test_loss = nn.CrossEntropyLoss()(test_output["logits"], test_label)
+    test_loss.backward()
+
+    print("Loss:", test_loss.item())
+    if args.model_architecture == "C":
+        print("Projection gradient:", model.projection[0].weight.grad.norm().item())
+    print("Classifier gradient:", model.classifier.weight.grad.norm().item())
+    wavlm_has_grad = any(p.grad is not None and p.grad.abs().sum().item() > 0 for p in model.wavlm.parameters())
+    print("WavLM gradients active:", wavlm_has_grad)
+    model.zero_grad()
+
+    callbacks = [EarlyStoppingCallback(early_stopping_patience=4 if getattr(args, 'tune_mode', False) else 6)]
+    if trial_callback is not None:
+        callbacks.append(trial_callback)
+
+    trainer = WeightedTrainer(
+        model=model, 
+        args=training_args, 
+        train_dataset=dataset_train, 
+        eval_dataset=dataset_val, 
+        processing_class=feature_extractor, 
+        compute_metrics=compute_metrics,
+        callbacks=callbacks
+    )
+
+    if args.check_only:
+        print("\n[Check-Only Mode] Completed all checks successfully. Exiting before training.")
+        return {"status": "checked", "output_dir": OUTPUT_DIR}
+
+    wandb_run = None
+    if use_wandb:
+        os.environ["WANDB_MODE"] = wandb_mode
+        try:
+            wandb_run = wandb.init(project=args.wandb_project, config=args.__dict__ if hasattr(args, '__dict__') else args, reinit=True)
+        except Exception as e:
+            print(f"[Warning] W&B init failed ({e}). Proceeding without W&B.")
+
+    trainer.train()
+    final_eval_metrics = trainer.evaluate()
+
+    val_metrics = {
+        "val_loss": final_eval_metrics.get("eval_loss", 0.0),
+        "val_accuracy": final_eval_metrics.get("eval_accuracy", 0.0),
+        "val_f1_macro": final_eval_metrics.get("eval_f1_macro", 0.0),
+        "val_precision_macro": final_eval_metrics.get("eval_precision_macro", 0.0),
+        "val_recall_macro": final_eval_metrics.get("eval_recall_macro", 0.0),
+        "output_dir": OUTPUT_DIR
+    }
+
+    if wandb_run is not None:
+        wandb.log({
+            "eval/loss": val_metrics["val_loss"],
+            "eval/accuracy": val_metrics["val_accuracy"],
+            "eval/f1_macro": val_metrics["val_f1_macro"],
+            "eval/precision_macro": val_metrics["val_precision_macro"],
+            "eval/recall_macro": val_metrics["val_recall_macro"],
+            "best_val_f1_macro": val_metrics["val_f1_macro"]
+        })
+
+    # In tuning mode, stop here to avoid test set leakage
+    if getattr(args, "tune_mode", False):
+        if wandb_run is not None:
+            wandb.finish()
+        print(f"\n[Tune Mode] Trial finished. Val Macro F1: {val_metrics['val_f1_macro']:.4f}, Val Acc: {val_metrics['val_accuracy']:.4f}")
+        return val_metrics
+
+    # Full final evaluation on fixed held-out test split
+    if args.doTest:
+        print("\n--- FINAL STRATIFIED EVALUATION ---")
+        test_results = trainer.predict(dataset_test)
+        y_true = test_results.label_ids
+        y_pred = np.argmax(test_results.predictions, axis=1)
+        
+        dataset_test.reset_format()
+        df_eval = pd.DataFrame({'true': y_true, 'pred': y_pred, 'gender': dataset_test['gender']})
+        
+        print("\nGlobal Classification Report:")
+        report_dict = classification_report(y_true, y_pred, labels=ALL_LABEL_IDS, target_names=unique_labels, zero_division=0, output_dict=True)
+        report_text = classification_report(y_true, y_pred, labels=ALL_LABEL_IDS, target_names=unique_labels, zero_division=0)
+        print(report_text)
+        with open(os.path.join(OUTPUT_DIR, "global_report.txt"), "w") as f: 
+            f.write(report_text)
+        
+        val_metrics["test_accuracy"] = report_dict['accuracy']
+        val_metrics["test_f1_macro"] = report_dict['macro avg']['f1-score']
+
+        if wandb_run is not None:
+            wandb.log({
+                "test_global/f1_macro": report_dict['macro avg']['f1-score'],
+                "test_global/f1_micro": report_dict['accuracy'],
+                "test_global/precision_macro": report_dict['macro avg']['precision'],
+                "test_global/recall_macro": report_dict['macro avg']['recall'],
+                "test_conf_mat_global": wandb.plot.confusion_matrix(
+                    probs=None, y_true=list(y_true), preds=list(y_pred), class_names=unique_labels
+                )
+            })
+        
+        for gender in ['M', 'F']:
+            gender_df = df_eval[df_eval['gender'] == gender]
+            if len(gender_df) > 0:
+                g_true = list(gender_df['true'])
+                g_pred = list(gender_df['pred'])
+                
+                rep_dict = classification_report(g_true, g_pred, labels=ALL_LABEL_IDS, target_names=unique_labels, zero_division=0, output_dict=True)
+                rep_text = classification_report(g_true, g_pred, labels=ALL_LABEL_IDS, target_names=unique_labels, zero_division=0)
+                
+                print(f"\nResults for Gender: {gender}")
+                print(rep_text)
+                
+                if wandb_run is not None:
+                    wandb.log({
+                        f"test_{gender}/f1_macro": rep_dict['macro avg']['f1-score'],
+                        f"test_{gender}/f1_micro": rep_dict['accuracy'],
+                        f"test_{gender}/precision_macro": rep_dict['macro avg']['precision'],
+                        f"test_{gender}/recall_macro": rep_dict['macro avg']['recall'],
+                        f"test_conf_mat_{gender}": wandb.plot.confusion_matrix(
+                            probs=None, y_true=g_true, preds=g_pred, class_names=unique_labels
+                        )
+                    })
+                
+                with open(os.path.join(OUTPUT_DIR, f"report_{gender}.txt"), "w") as f: 
+                    f.write(rep_text)
+
+    if wandb_run is not None:
+        wandb.finish()
+
+    return val_metrics
+
+
+if __name__ == "__main__":
+    parser = get_parser()
+    args = parser.parse_args()
+    run_unified_training(args)
