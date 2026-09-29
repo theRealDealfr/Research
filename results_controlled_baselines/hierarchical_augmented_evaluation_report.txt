@@ -1,0 +1,25 @@
+=== HIERARCHICAL PIPELINE EVALUATION (AUGMENTED STAGE 2) ===
+Stage 1 Binary Screening Accuracy: 0.9112 | Macro F1: 0.9110
+Stage 2 Disorder Accuracy:         0.3803 | Macro F1: 0.3387
+End-to-End Hierarchical Accuracy:  0.6272 | Macro F1: 0.4126
+
+5-Way Classification Report:
+                      precision    recall  f1-score   support
+
+typically_developing       0.95      0.83      0.89        98
+        substitution       0.37      0.43      0.40        23
+          stuttering       0.21      0.21      0.21        19
+            omission       0.28      0.45      0.34        22
+            addition       0.50      0.14      0.22         7
+
+            accuracy                           0.63       169
+           macro avg       0.46      0.41      0.41       169
+        weighted avg       0.68      0.63      0.65       169
+
+Confusion Matrix:
+                      typically_developing  substitution  stuttering  omission  addition
+typically_developing                    81             5           7         5         0
+substitution                             0            10           3        10         0
+stuttering                               3             3           4         9         0
+omission                                 1             7           3        10         1
+addition                                 0             2           2         2         1
