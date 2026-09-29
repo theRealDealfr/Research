@@ -2,8 +2,9 @@
 torch
 torchaudio
 transformers
-datasets
+datasets==2.21.0
 accelerate
+peft
 
 # Audio Processing
 soundfile

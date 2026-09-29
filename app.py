@@ -5,7 +5,7 @@ import torch
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from infer import predict_speech_disorder
+from infer import predict_speech_disorder, inspect_checkpoint
 
 app = FastAPI(
     title="Pediatric Speech-Language Pathology AI",
@@ -21,7 +21,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CHECKPOINT_PATH = "./results_controlled_baselines/model_c_aaff_best.pt"
+LORA_CHECKPOINT_PATH = "./results_wavlm_lora_aaff/model_c_wavlm_lora_aaff_best.pt"
+BASELINE_CHECKPOINT_PATH = "./results_controlled_baselines/model_c_aaff_best.pt"
+
+# Detect active checkpoint from env, or prefer LoRA if present, otherwise baseline
+CHECKPOINT_PATH = os.environ.get(
+    "SLP_CHECKPOINT_PATH",
+    LORA_CHECKPOINT_PATH if os.path.exists(LORA_CHECKPOINT_PATH) else BASELINE_CHECKPOINT_PATH
+)
 MODEL_CHECKPOINT = "microsoft/wavlm-large"
 
 HTML_TEMPLATE = """
@@ -442,7 +449,7 @@ HTML_TEMPLATE = """
 
                         <div class="stat-box" style="margin-top: 0.5rem;">
                             <div class="title">Active Trained Checkpoint</div>
-                            <div class="val" style="font-size: 0.9rem; font-family: monospace; color: var(--accent-cyan);">
+                            <div class="val" id="activeCheckpointDisplay" style="font-size: 0.9rem; font-family: monospace; color: var(--accent-cyan);">
                                 model_c_aaff_best.pt
                             </div>
                         </div>
@@ -489,7 +496,7 @@ HTML_TEMPLATE = """
                     </div>
                     <div class="stat-box">
                         <div class="title">WavLM Backbone</div>
-                        <div class="val" style="font-size: 0.85rem;">1024-d Frozen</div>
+                        <div class="val" id="backboneDisplay" style="font-size: 0.85rem;">1024-d Frozen</div>
                     </div>
                     <div class="stat-box">
                         <div class="title">Inference Device</div>
@@ -608,6 +615,9 @@ HTML_TEMPLATE = """
                 document.getElementById('durationDisplay').innerText = res.duration.toFixed(2) + "s";
                 document.getElementById('normAgeDisplay').innerText = res.normalized_age.toFixed(4);
                 document.getElementById('deviceDisplay').innerText = res.device.toUpperCase();
+                if (res.model_architecture && document.getElementById('backboneDisplay')) {
+                    document.getElementById('backboneDisplay').innerText = res.model_architecture;
+                }
 
                 panel.scrollIntoView({ behavior: 'smooth' });
             } catch (err) {
@@ -625,7 +635,17 @@ HTML_TEMPLATE = """
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    return HTMLResponse(content=HTML_TEMPLATE)
+    ckpt_info = inspect_checkpoint(CHECKPOINT_PATH)
+    arch_type = ckpt_info.get("architecture_type", "Frozen Baseline")
+    ckpt_name = os.path.basename(CHECKPOINT_PATH)
+    rendered = HTML_TEMPLATE.replace(
+        "model_c_aaff_best.pt",
+        f"{ckpt_name} ({arch_type})"
+    ).replace(
+        "1024-d Frozen",
+        f"1024-d {arch_type}"
+    )
+    return HTMLResponse(content=rendered)
 
 @app.get("/samples/{filename}")
 async def get_sample(filename: str):
@@ -666,6 +686,9 @@ async def predict(
             for k, v in result.items()
         }
         safe_result["device"] = device_name
+        safe_result["checkpoint_path"] = CHECKPOINT_PATH
+        safe_result["model_architecture"] = result.get("model_architecture", "Frozen Baseline")
+        safe_result["model_description"] = result.get("model_description", "")
         return JSONResponse(content=safe_result)
 
     finally:

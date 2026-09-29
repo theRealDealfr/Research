@@ -6,12 +6,14 @@ import numpy as np
 import librosa
 from torch import nn
 from transformers import AutoFeatureExtractor, AutoModel
+import peft
+from peft import LoraConfig, get_peft_model
 
 class AAFFClassifier(nn.Module):
     """
     Stage 1 Age-Aware Feature Fusion (AAFF) Binary Architecture:
     1024-d speech embedding + 1-d normalized age (1025-d)
-    -> Linear(1025, 256) -> ReLU() -> Dropout(0.2) -> Linear(256, 2)
+    -> Linear(1025, proj_dim) -> ReLU() -> Dropout(0.2) -> Linear(proj_dim, num_classes)
     """
     def __init__(self, in_features=1025, proj_dim=256, dropout=0.2, num_classes=2):
         super().__init__()
@@ -31,7 +33,7 @@ class AAFFDisorderClassifier(nn.Module):
     """
     Stage 2 Age-Aware Feature Fusion (AAFF) Multiclass Disorder Architecture:
     1024-d speech embedding + 1-d normalized age (1025-d)
-    -> Linear(1025, 256) -> ReLU() -> Dropout(0.2) -> Linear(256, 4)
+    -> Linear(1025, proj_dim) -> ReLU() -> Dropout(0.2) -> Linear(proj_dim, num_classes)
     """
     def __init__(self, in_features=1025, proj_dim=256, dropout=0.2, num_classes=4):
         super().__init__()
@@ -50,6 +52,67 @@ class AAFFDisorderClassifier(nn.Module):
 DISORDER_CLASSES = ["substitution", "stuttering", "omission", "addition"]
 _MODEL_CACHE = {}
 
+def inspect_checkpoint(checkpoint_path):
+    """
+    Inspects a checkpoint and returns architecture metadata, detecting whether it is:
+      1. Legacy Frozen Baseline (flat state_dict)
+      2. LoRA Fine-Tuned (consolidated dictionary with lora_state_dict)
+    """
+    if not checkpoint_path or not os.path.exists(checkpoint_path):
+        return {"exists": False, "architecture_type": "Unknown", "model_type": "none"}
+    
+    try:
+        ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    except Exception as e:
+        return {"exists": True, "error": str(e), "architecture_type": "Unknown"}
+
+    if isinstance(ckpt, dict) and ("lora_state_dict" in ckpt or "model_type" in ckpt):
+        unfrozen = ckpt.get("unfreeze_top_layers", 0)
+        arch_desc = f"LoRA Fine-Tuned (WavLM-Large + LoRA r={ckpt.get('lora_r', 8)}"
+        if unfrozen > 0:
+            arch_desc += f" + Top {unfrozen} Layers"
+        arch_desc += " + AAFF)"
+
+        return {
+            "exists": True,
+            "architecture_type": "LoRA Fine-Tuned",
+            "architecture_description": arch_desc,
+            "model_type": ckpt.get("model_type", "wavlm_lora_aaff"),
+            "model_checkpoint": ckpt.get("model_checkpoint", "microsoft/wavlm-large"),
+            "unfreeze_top_layers": unfrozen,
+            "unfrozen_layers": ckpt.get("unfrozen_layers", []),
+            "lora_r": ckpt.get("lora_r", 8),
+            "lora_alpha": ckpt.get("lora_alpha", 16),
+            "target_modules": ckpt.get("target_modules", "q_proj,v_proj"),
+            "num_classes": ckpt.get("num_classes", 2),
+            "unique_labels": ckpt.get("unique_labels", ["speech_disorder", "typically_developing"]),
+            "proj_dim": ckpt.get("proj_dim", 256),
+            "age_min": float(ckpt.get("age_min", 5.67)),
+            "age_max": float(ckpt.get("age_max", 12.83)),
+            "metrics": ckpt.get("metrics", {})
+        }
+    else:
+        # Legacy flat state_dict
+        proj_weight = ckpt.get("projection.0.weight", None) if isinstance(ckpt, dict) else None
+        clf_weight = ckpt.get("classifier.weight", None) if isinstance(ckpt, dict) else None
+        proj_dim = proj_weight.shape[0] if proj_weight is not None else 256
+        num_classes = clf_weight.shape[0] if clf_weight is not None else 2
+        return {
+            "exists": True,
+            "architecture_type": "Frozen Baseline",
+            "architecture_description": "Frozen Baseline (WavLM-Large + AAFF)",
+            "model_type": "frozen_wavlm_aaff",
+            "model_checkpoint": "microsoft/wavlm-large",
+            "unfreeze_top_layers": 0,
+            "lora_r": None,
+            "num_classes": num_classes,
+            "unique_labels": ["speech_disorder", "typically_developing"] if num_classes == 2 else DISORDER_CLASSES,
+            "proj_dim": proj_dim,
+            "age_min": 5.67,
+            "age_max": 12.83,
+            "metrics": {}
+        }
+
 def get_loaded_hierarchical_models(
     stage1_checkpoint="./results_controlled_baselines/model_c_aaff_best.pt",
     stage2_checkpoint="./results_controlled_baselines/model_stage2_disorder_best.pt",
@@ -67,31 +130,79 @@ def get_loaded_hierarchical_models(
     )
 
     if cache_key not in _MODEL_CACHE:
-        # Load WavLM Backbone and Extractor
         feature_extractor = AutoFeatureExtractor.from_pretrained(model_checkpoint)
-        wavlm = AutoModel.from_pretrained(model_checkpoint, use_safetensors=True)
-        wavlm.eval()
-        wavlm.to(device)
-        for param in wavlm.parameters():
-            param.requires_grad = False
+        stage1_meta = inspect_checkpoint(stage1_checkpoint)
 
-        # Load Stage 1 Binary Model
-        stage1_model = None
-        if stage1_checkpoint and os.path.exists(stage1_checkpoint):
-            stage1_model = AAFFClassifier(in_features=1025, proj_dim=256, dropout=0.2, num_classes=2).to(device)
-            state_dict = torch.load(stage1_checkpoint, map_location=device, weights_only=True)
-            stage1_model.load_state_dict(state_dict)
+        # 1. Determine if Stage 1 uses LoRA backbone or Frozen backbone
+        if stage1_meta.get("architecture_type") == "LoRA Fine-Tuned":
+            base_wavlm = AutoModel.from_pretrained(model_checkpoint, use_safetensors=True)
+            for param in base_wavlm.parameters():
+                param.requires_grad = False
+
+            ckpt = torch.load(stage1_checkpoint, map_location=device, weights_only=False)
+            target_mods = [m.strip() for m in ckpt.get("target_modules", "q_proj,v_proj").split(",") if m.strip()]
+            lora_config = LoraConfig(
+                r=ckpt.get("lora_r", 8),
+                lora_alpha=ckpt.get("lora_alpha", 16),
+                target_modules=target_mods,
+                lora_dropout=0.0,
+                bias="none"
+            )
+            lora_wavlm = get_peft_model(base_wavlm, lora_config)
+
+            # Load LoRA adapter weights
+            if "lora_state_dict" in ckpt and hasattr(lora_wavlm, "load_state_dict"):
+                peft.set_peft_model_state_dict(lora_wavlm, ckpt["lora_state_dict"])
+
+            # Load unfrozen backbone layers if present
+            if "backbone_trainable_state" in ckpt:
+                for name, param in lora_wavlm.named_parameters():
+                    if name in ckpt["backbone_trainable_state"]:
+                        param.data.copy_(ckpt["backbone_trainable_state"][name].to(device))
+
+            lora_wavlm.eval()
+            lora_wavlm.to(device)
+            wavlm = lora_wavlm
+
+            # Load AAFF Head
+            s1_proj_dim = ckpt.get("proj_dim", 256)
+            s1_num_classes = ckpt.get("num_classes", 2)
+            stage1_model = AAFFClassifier(in_features=1025, proj_dim=s1_proj_dim, dropout=0.0, num_classes=s1_num_classes).to(device)
+            if "head_state_dict" in ckpt:
+                stage1_model.projection.load_state_dict(ckpt["head_state_dict"]["projection"])
+                stage1_model.classifier.load_state_dict(ckpt["head_state_dict"]["classifier"])
             stage1_model.eval()
 
-        # Load Stage 2 Multiclass Model (if exists)
+        else:
+            # Legacy Frozen Backbone
+            wavlm = AutoModel.from_pretrained(model_checkpoint, use_safetensors=True)
+            wavlm.eval()
+            wavlm.to(device)
+            for param in wavlm.parameters():
+                param.requires_grad = False
+
+            stage1_model = None
+            if stage1_checkpoint and os.path.exists(stage1_checkpoint):
+                state_dict = torch.load(stage1_checkpoint, map_location=device, weights_only=False)
+                if isinstance(state_dict, dict) and "projection.0.weight" in state_dict:
+                    s1_proj_dim = state_dict["projection.0.weight"].shape[0]
+                    s1_num_classes = state_dict["classifier.weight"].shape[0]
+                    stage1_model = AAFFClassifier(in_features=1025, proj_dim=s1_proj_dim, dropout=0.0, num_classes=s1_num_classes).to(device)
+                    stage1_model.load_state_dict(state_dict)
+                    stage1_model.eval()
+
+        # 2. Load Stage 2 Multiclass Model (if exists)
         stage2_model = None
         if stage2_checkpoint and os.path.exists(stage2_checkpoint):
-            stage2_model = AAFFDisorderClassifier(in_features=1025, proj_dim=256, dropout=0.2, num_classes=4).to(device)
-            state_dict = torch.load(stage2_checkpoint, map_location=device, weights_only=True)
-            stage2_model.load_state_dict(state_dict)
-            stage2_model.eval()
+            state_dict = torch.load(stage2_checkpoint, map_location=device, weights_only=False)
+            if isinstance(state_dict, dict) and "projection.0.weight" in state_dict:
+                s2_proj_dim = state_dict["projection.0.weight"].shape[0]
+                s2_num_classes = state_dict["classifier.weight"].shape[0]
+                stage2_model = AAFFDisorderClassifier(in_features=1025, proj_dim=s2_proj_dim, dropout=0.0, num_classes=s2_num_classes).to(device)
+                stage2_model.load_state_dict(state_dict)
+                stage2_model.eval()
 
-        _MODEL_CACHE[cache_key] = (feature_extractor, wavlm, stage1_model, stage2_model)
+        _MODEL_CACHE[cache_key] = (feature_extractor, wavlm, stage1_model, stage2_model, stage1_meta)
 
     return _MODEL_CACHE[cache_key]
 
@@ -116,7 +227,11 @@ def extract_audio_features(audio_path, feature_extractor, wavlm, device, target_
         outputs = wavlm(input_values=input_values, attention_mask=attention_mask)
         hidden_states = outputs.last_hidden_state
 
-        feature_mask = wavlm._get_feature_vector_attention_mask(
+        raw_backbone = wavlm.get_base_model() if hasattr(wavlm, "get_base_model") else wavlm
+        if hasattr(raw_backbone, "model"):
+            raw_backbone = raw_backbone.model
+
+        feature_mask = raw_backbone._get_feature_vector_attention_mask(
             hidden_states.shape[1],
             attention_mask
         )
@@ -139,7 +254,7 @@ def predict_hierarchical_speech_disorder(
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    feature_extractor, wavlm, stage1_model, stage2_model = get_loaded_hierarchical_models(
+    feature_extractor, wavlm, stage1_model, stage2_model, stage1_meta = get_loaded_hierarchical_models(
         stage1_checkpoint=stage1_checkpoint,
         stage2_checkpoint=stage2_checkpoint,
         model_checkpoint=model_checkpoint,
@@ -149,9 +264,9 @@ def predict_hierarchical_speech_disorder(
     # 1. Feature Extraction
     pooled_emb, duration = extract_audio_features(audio_path, feature_extractor, wavlm, device)
 
-    # 2. Age Normalization (training bounds [5.67, 12.83])
-    age_min = 5.67
-    age_max = 12.83
+    # 2. Age Normalization (dynamically from stage1_meta or default training bounds)
+    age_min = float(stage1_meta.get("age_min", 5.67))
+    age_max = float(stage1_meta.get("age_max", 12.83))
     norm_age = (float(age) - age_min) / (age_max - age_min)
     norm_age_clamped = max(0.0, min(1.0, norm_age))
     age_tensor = torch.tensor([[norm_age_clamped]], dtype=torch.float32).to(device)
@@ -258,6 +373,9 @@ def predict_hierarchical_speech_disorder(
         },
         "final_prediction": final_prediction,
         "final_confidence": float(final_confidence * 100.0),
+        "model_architecture": stage1_meta.get("architecture_type", "Frozen Baseline"),
+        "model_description": stage1_meta.get("architecture_description", "Frozen Baseline (WavLM-Large + AAFF)"),
+        "stage1_meta": stage1_meta,
         "hierarchical_explanation": (
             f"Stage 1 detected {stage1_prediction} with {stage1_confidence*100.0:.1f}% certainty. "
             + (f"Stage 2 subtyped the symptom as {stage2_prediction} ({stage2_confidence*100.0:.1f}% conditional). Combined hierarchical confidence: {final_confidence*100.0:.1f}%."
@@ -281,6 +399,8 @@ def predict_speech_disorder(audio_path, age, checkpoint_path=None, model_checkpo
         "prob_typical": res["stage1"]["prob_td"],
         "duration": res["duration"],
         "normalized_age": res["normalized_age"],
+        "model_architecture": res.get("model_architecture", "Frozen Baseline"),
+        "model_description": res.get("model_description", "Frozen Baseline (WavLM-Large + AAFF)"),
         "hierarchical_details": res
     }
 
