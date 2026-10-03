@@ -1,7 +1,10 @@
 import os
 import re
+import io
 import random
 import numpy as np
+import soundfile as sf
+import soxr
 import torch
 from datasets import load_dataset, Audio, ClassLabel
 from transformers import AutoFeatureExtractor, AutoModel
@@ -25,9 +28,9 @@ def extract_embeddings():
     dataset = load_dataset(dataset_name, split="train")
     print(f"Total samples loaded: {len(dataset)}")
 
-    # Speaker ID extraction matching reference protocol
-    ds_meta = dataset.cast_column("audio", Audio(decode=False))
-    paths = [item["audio"]["path"] for item in ds_meta]
+    # Cast audio column to decode=False to prevent external decoding dependencies (torchcodec)
+    dataset = dataset.cast_column("audio", Audio(decode=False))
+    paths = [item["audio"]["path"] for item in dataset]
     pattern = re.compile(r"^(?:test_|train_|val_|audio_)?([a-zA-Z0-9]+)[_\-\.]", re.IGNORECASE)
     speaker_ids = []
     for p in paths:
@@ -89,9 +92,18 @@ def extract_embeddings():
     max_duration = 12.0
     max_length = int(target_sr * max_duration)
 
-    ds_train = ds_train.cast_column("audio", Audio(sampling_rate=target_sr))
-    ds_val   = ds_val.cast_column("audio", Audio(sampling_rate=target_sr))
-    ds_test  = ds_test.cast_column("audio", Audio(sampling_rate=target_sr))
+    def load_audio_array(sample_audio_dict):
+        raw_bytes = sample_audio_dict.get("bytes")
+        if raw_bytes:
+            wav, sr = sf.read(io.BytesIO(raw_bytes))
+        else:
+            path = sample_audio_dict["path"]
+            wav, sr = sf.read(path)
+        if wav.ndim > 1:
+            wav = wav.mean(axis=1) # Convert to mono
+        if sr != target_sr:
+            wav = soxr.resample(wav, sr, target_sr)
+        return wav.astype(np.float32)
 
     print("\n=== Step 2: Loading WavLM Model ===")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -114,7 +126,7 @@ def extract_embeddings():
         total = len(ds_split)
         for i in range(0, total, batch_size):
             batch_samples = [ds_split[j] for j in range(i, min(i + batch_size, total))]
-            audio_arrays = [s["audio"]["array"] for s in batch_samples]
+            audio_arrays = [load_audio_array(s["audio"]) for s in batch_samples]
             ages = [normalize_age(s["age"]) for s in batch_samples]
             labels = [s["labels"] for s in batch_samples]
             genders = [s["gender"] for s in batch_samples]

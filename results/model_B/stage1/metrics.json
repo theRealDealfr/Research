@@ -1,0 +1,44 @@
+{
+    "accuracy": 0.846154,
+    "precision_macro": 0.847771,
+    "recall_macro": 0.850226,
+    "f1_macro": 0.846019,
+    "f1_weighted": 0.8462,
+    "confusion_matrix": [
+        [
+            69,
+            8
+        ],
+        [
+            18,
+            74
+        ]
+    ],
+    "classification_report": {
+        "speech_disorder": {
+            "precision": 0.7931034482758621,
+            "recall": 0.8961038961038961,
+            "f1-score": 0.8414634146341463,
+            "support": 77.0
+        },
+        "typically_developing": {
+            "precision": 0.9024390243902439,
+            "recall": 0.8043478260869565,
+            "f1-score": 0.8505747126436781,
+            "support": 92.0
+        },
+        "accuracy": 0.8461538461538461,
+        "macro avg": {
+            "precision": 0.847771236333053,
+            "recall": 0.8502258610954263,
+            "f1-score": 0.8460190636389122,
+            "support": 169.0
+        },
+        "weighted avg": {
+            "precision": 0.8526234068706734,
+            "recall": 0.8461538461538461,
+            "f1-score": 0.846423411183714,
+            "support": 169.0
+        }
+    }
+}

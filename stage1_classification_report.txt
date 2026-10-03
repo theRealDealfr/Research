@@ -1,0 +1,8 @@
+                      precision    recall  f1-score   support
+
+     Speech Disorder      0.869     0.948     0.907        77
+Typically Developing      0.953     0.880     0.915        92
+
+            accuracy                          0.911       169
+           macro avg      0.911     0.914     0.911       169
+        weighted avg      0.915     0.911     0.911       169

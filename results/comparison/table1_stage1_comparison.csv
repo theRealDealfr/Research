@@ -1,0 +1,6 @@
+Metric,Model A,Model B,Model C
+Accuracy,0.857988,0.846154,0.911243
+Macro Precision,0.861376,0.847771,0.910994
+Macro Recall,0.863213,0.850226,0.914243
+Macro F1,0.857943,0.846019,0.911043
+Weighted F1,0.858,0.8462,0.9113

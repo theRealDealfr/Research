@@ -1,0 +1,8 @@
+              precision    recall  f1-score   support
+
+Articulation      0.917     0.932     0.924        59
+Phonological      0.600     0.545     0.571        11
+
+    accuracy                          0.871        70
+   macro avg      0.758     0.739     0.748        70
+weighted avg      0.867     0.871     0.869        70

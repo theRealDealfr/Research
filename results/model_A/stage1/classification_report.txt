@@ -1,0 +1,12 @@
+=== Model A - Stage 1 (Screening) ===
+Accuracy: 0.8580
+Macro F1: 0.8579
+
+                      precision    recall  f1-score   support
+
+     speech_disorder       0.80      0.92      0.86        77
+typically_developing       0.93      0.80      0.86        92
+
+            accuracy                           0.86       169
+           macro avg       0.86      0.86      0.86       169
+        weighted avg       0.87      0.86      0.86       169

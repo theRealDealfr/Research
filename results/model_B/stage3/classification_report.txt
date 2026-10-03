@@ -1,0 +1,15 @@
+=== Model B - Stage 3 (Symptom Classification) ===
+Optimal LR: 0.0003
+Accuracy: 0.3099
+Macro F1: 0.2817
+
+              precision    recall  f1-score   support
+
+substitution       0.30      0.39      0.34        23
+  stuttering       0.21      0.16      0.18        19
+    omission       0.36      0.41      0.38        22
+    addition       0.50      0.14      0.22         7
+
+    accuracy                           0.31        71
+   macro avg       0.34      0.28      0.28        71
+weighted avg       0.32      0.31      0.30        71

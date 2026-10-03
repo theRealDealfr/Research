@@ -1,0 +1,37 @@
+
+====================================================================
+              HIERARCHICAL CLASSIFICATION PERFORMANCE
+              (Standalone Ground-Truth Branch Evaluation)
+====================================================================
+Metric                 T1             T2             T3
+                       Screening      Disorder       Symptom
+--------------------------------------------------------------------
+Accuracy                91.124%         87.143%         35.211%
+Macro Precision         91.099%         75.833%         34.147%
+Macro Recall            91.424%         73.883%         33.552%
+Macro F1                91.104%         74.790%         33.197%
+Weighted F1             91.142%         86.891%         34.500%
+====================================================================
+Task Granularity Deltas (Macro F1):
+  Delta F1(T2 - T1): -16.314%
+  Delta F1(T3 - T2): -41.593%
+  (Note: Deltas demonstrate task difficulty progression across increasingly
+   fine-grained acoustic/phonemic label spaces; they do not imply model flaw.)
+====================================================================
+
+====================================================================
+              CASCADED PIPELINE PERFORMANCE
+              (Evaluated through Stage 1 Screening Decisions)
+====================================================================
+Metric                 T1 Screening   T2 Disordered  T3 Disordered
+                       (Full N=169)   Branch (N=66)   Branch (N=67)
+--------------------------------------------------------------------
+Accuracy                91.124%         87.879%         34.328%
+Macro Precision         91.099%         74.269%         33.487%
+Macro Recall            91.424%         74.269%         32.327%
+Macro F1                91.104%         74.269%         32.411%
+Weighted F1             91.142%         87.879%         33.603%
+--------------------------------------------------------------------
+End-to-End Accuracy     91.124%         82.857%         32.394%
+(Counted correct only if Stage 1 screening AND downstream prediction match GT)
+====================================================================

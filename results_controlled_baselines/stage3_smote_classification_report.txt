@@ -1,0 +1,45 @@
+=== STAGE 3 MULTICLASS SYMPTOM CLASSIFICATION REPORT (SMOTE) ===
+Target Column: disorder_symptom (Disorder Subtypes)
+Classes: ['substitution', 'stuttering', 'omission', 'addition']
+Optimal Learning Rate: 0.0005
+
+Original Training Distribution:
+  substitution: 227
+  stuttering: 190
+  omission: 165
+  addition: 48
+Total Original: 630
+
+Resampled Training Distribution (SMOTE):
+  substitution: 227
+  stuttering: 227
+  omission: 227
+  addition: 227
+Total Resampled: 908
+
+Val Accuracy: 0.5192 | Val Macro F1: 0.3899
+Test Accuracy: 0.3521 | Test Macro F1: 0.3320
+Test Macro Precision: 0.3415 | Test Macro Recall: 0.3355
+Test Weighted F1: 0.3450 | Avg Confidence: 0.6509
+
+Classification Report:
+              precision    recall  f1-score   support
+
+substitution       0.35      0.39      0.37        23
+  stuttering       0.36      0.21      0.27        19
+    omission       0.37      0.45      0.41        22
+    addition       0.29      0.29      0.29         7
+
+    accuracy                           0.35        71
+   macro avg       0.34      0.34      0.33        71
+weighted avg       0.35      0.35      0.35        71
+
+Confusion Matrix:
+[[ 9  5  8  1]
+ [ 6  4  7  2]
+ [ 8  2 10  2]
+ [ 3  0  2  2]]
+
+Baseline Comparison:
+  Baseline Acc: 0.3380 -> SMOTE Acc: 0.3521 (Delta: +1.41%)
+  Baseline Macro F1: 0.3020 -> SMOTE Macro F1: 0.3320 (Delta: +3.00%)

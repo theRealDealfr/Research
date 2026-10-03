@@ -1,0 +1,71 @@
+{
+    "total_samples": 926,
+    "total_speakers": 262,
+    "stage1": {
+        "typically_developing": {
+            "samples": 500,
+            "speakers": 177
+        },
+        "speech_disorder": {
+            "samples": 426,
+            "speakers": 143
+        }
+    },
+    "stage2_disordered": {
+        "articulation": {
+            "samples": 324,
+            "speakers": 127
+        },
+        "phonological": {
+            "samples": 75,
+            "speakers": 52
+        },
+        "typically_developing": {
+            "samples": 24,
+            "speakers": 21
+        },
+        "omission": {
+            "samples": 1,
+            "speakers": 1
+        },
+        "addition": {
+            "samples": 1,
+            "speakers": 1
+        },
+        "stuttering": {
+            "samples": 1,
+            "speakers": 1
+        }
+    },
+    "stage3_disordered": {
+        "substitution": {
+            "samples": 150,
+            "speakers": 85
+        },
+        "stuttering": {
+            "samples": 117,
+            "speakers": 73
+        },
+        "omission": {
+            "samples": 105,
+            "speakers": 64
+        },
+        "addition": {
+            "samples": 29,
+            "speakers": 22
+        },
+        "typically_developing": {
+            "samples": 23,
+            "speakers": 20
+        },
+        "substitution_modified": {
+            "samples": 1,
+            "speakers": 1
+        },
+        "phonological": {
+            "samples": 1,
+            "speakers": 1
+        }
+    },
+    "leakage_passed": true
+}

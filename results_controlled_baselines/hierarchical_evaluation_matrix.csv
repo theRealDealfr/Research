@@ -1,0 +1,6 @@
+Metric,Stage 1 Screening,Stage 2 Disorder,Stage 3 Symptom
+Accuracy,91.124%,87.143%,35.211%
+Macro Precision,91.099%,75.833%,34.147%
+Macro Recall,91.424%,73.883%,33.552%
+Macro F1,91.104%,74.790%,33.197%
+Weighted F1,91.142%,86.891%,34.500%

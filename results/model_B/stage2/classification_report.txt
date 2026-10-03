@@ -1,0 +1,13 @@
+=== Model B - Stage 2 (Disorder Type) ===
+Optimal LR: 0.001
+Accuracy: 0.8286
+Macro F1: 0.7166
+
+              precision    recall  f1-score   support
+
+articulation       0.93      0.86      0.89        59
+phonological       0.47      0.64      0.54        11
+
+    accuracy                           0.83        70
+   macro avg       0.70      0.75      0.72        70
+weighted avg       0.85      0.83      0.84        70

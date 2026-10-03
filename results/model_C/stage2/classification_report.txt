@@ -1,0 +1,13 @@
+=== Model C - Stage 2 (Disorder Type) ===
+Optimal LR: 0.001
+Accuracy: 0.8143
+Macro F1: 0.6359
+
+              precision    recall  f1-score   support
+
+articulation       0.88      0.90      0.89        59
+phonological       0.40      0.36      0.38        11
+
+    accuracy                           0.81        70
+   macro avg       0.64      0.63      0.64        70
+weighted avg       0.81      0.81      0.81        70

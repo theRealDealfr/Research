@@ -16,6 +16,7 @@ scikit-learn
 pandas
 numpy
 imbalanced-learn
+matplotlib
 
 # Experiment Tracking
 wandb
