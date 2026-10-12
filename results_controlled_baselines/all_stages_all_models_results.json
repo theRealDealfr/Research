@@ -1,0 +1,137 @@
+{
+  "stage1_binary_screening": {
+    "Model A (WavLM Only)": {
+      "accuracy": 0.857988,
+      "f1_macro": 0.857943,
+      "precision": 0.861376,
+      "recall": 0.863213,
+      "male_f1": 0.858527,
+      "female_f1": 0.82906,
+      "disparity": 0.029467
+    },
+    "Model B (Direct Age)": {
+      "accuracy": 0.846154,
+      "f1_macro": 0.846019,
+      "precision": 0.847771,
+      "recall": 0.850226,
+      "male_f1": 0.840602,
+      "female_f1": 0.82906,
+      "disparity": 0.011542
+    },
+    "Model C (AAFF Projection)": {
+      "accuracy": 0.911243,
+      "f1_macro": 0.911043,
+      "precision": 0.910994,
+      "recall": 0.914243,
+      "male_f1": 0.924776,
+      "female_f1": 0.858824,
+      "disparity": 0.065952
+    }
+  },
+  "stage2_disorder_type": {
+    "Model A (WavLM Only)": {
+      "accuracy": 0.8309859154929577,
+      "f1_macro": 0.45384615384615384,
+      "precision": 0.4154929577464789,
+      "recall": 0.5,
+      "male_f1": 0.4519230769230769,
+      "female_f1": 0.46153846153846156,
+      "disparity": 0.009615384615384637
+    },
+    "Model B (Direct Age)": {
+      "accuracy": 0.704225352112676,
+      "f1_macro": 0.5450106805004578,
+      "precision": 0.5435729847494554,
+      "recall": 0.556497175141243,
+      "male_f1": 0.525,
+      "female_f1": 0.6347826086956522,
+      "disparity": 0.10978260869565215
+    },
+    "Model C (AAFF Projection)": {
+      "accuracy": 0.8450704225352113,
+      "f1_macro": 0.5342874180083482,
+      "precision": 0.9214285714285715,
+      "recall": 0.5416666666666666,
+      "male_f1": 0.4519230769230769,
+      "female_f1": 0.8133333333333332,
+      "disparity": 0.3614102564102563
+    },
+    "Model C + Augmentation": {
+      "accuracy": 0.8450704225352113,
+      "f1_macro": 0.6324705882352941,
+      "precision": 0.7318181818181818,
+      "recall": 0.6080508474576272,
+      "male_f1": 0.5224676313785225,
+      "female_f1": 1.0,
+      "disparity": 0.4775323686214775
+    }
+  },
+  "stage3_disorder_symptoms": {
+    "Model A (WavLM Only)": {
+      "accuracy": 0.28169014084507044,
+      "f1_macro": 0.17523809523809525,
+      "precision": 0.13951612903225807,
+      "recall": 0.23569794050343248,
+      "male_f1": 0.17496229260935142,
+      "female_f1": 0.17424242424242425,
+      "disparity": 0.0007198683669271677
+    },
+    "Model B (Direct Age)": {
+      "accuracy": 0.323943661971831,
+      "f1_macro": 0.2368268434134217,
+      "precision": 0.26609848484848486,
+      "recall": 0.2598294154358228,
+      "male_f1": 0.24676501035196685,
+      "female_f1": 0.225,
+      "disparity": 0.021765010351966846
+    },
+    "Model C (AAFF Projection)": {
+      "accuracy": 0.3380281690140845,
+      "f1_macro": 0.25257553111988895,
+      "precision": 0.2722222222222222,
+      "recall": 0.2716871229457042,
+      "male_f1": 0.2427353445666431,
+      "female_f1": 0.29642857142857143,
+      "disparity": 0.05369322686192832
+    },
+    "Model C + Augmentation": {
+      "accuracy": 0.38028169014084506,
+      "f1_macro": 0.3367659707561186,
+      "precision": 0.41278935185185184,
+      "recall": 0.3329110820529585,
+      "male_f1": 0.36330917144870634,
+      "female_f1": 0.2261904761904762,
+      "disparity": 0.13711869525823014
+    }
+  },
+  "end_to_end_hierarchical": {
+    "Model A (WavLM Only)": {
+      "accuracy": 0.591715976331361,
+      "macro_f1": 0.2955676988463874,
+      "precision": 0.2795678271308523,
+      "recall": 0.34333815906225185,
+      "weighted_f1": 0.5878502423269132
+    },
+    "Model B (Direct Age)": {
+      "accuracy": 0.6094674556213018,
+      "macro_f1": 0.34027262355131205,
+      "precision": 0.3559204031262855,
+      "recall": 0.3640787457067287,
+      "weighted_f1": 0.618658968993628
+    },
+    "Model C (AAFF Projection)": {
+      "accuracy": 0.6153846153846154,
+      "macro_f1": 0.35474205824313365,
+      "precision": 0.3622549019607843,
+      "recall": 0.37356491171463385,
+      "weighted_f1": 0.6284317967626923
+    },
+    "Model C + Augmentation": {
+      "accuracy": 0.6272189349112426,
+      "macro_f1": 0.4118818617707197,
+      "precision": 0.5536601307189543,
+      "recall": 0.41201776321096356,
+      "weighted_f1": 0.6432460039958671
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "stage1_screening_ablation": {
+    "labels": [
+      "1. Frozen WavLM\n(No Age)",
+      "2. + Direct Age\n(Linear 1025-d)",
+      "3. + AAFF Projection\n(Full Model C)"
+    ],
+    "accuracy": [
+      85.8,
+      84.62,
+      91.12
+    ],
+    "macro_f1": [
+      85.79,
+      84.6,
+      91.1
+    ]
+  },
+  "stage2_disorder_type_ablation": {
+    "labels": [
+      "1. WavLM Only\n(Baseline)",
+      "2. + Direct Age\n(Linear)",
+      "3. + AAFF Proj\n(Non-linear)",
+      "4. + Pitch Aug\n(CDA)",
+      "5. + Bayesian\n(TPE Tuned)"
+    ],
+    "accuracy": [
+      83.1,
+      70.42,
+      84.51,
+      84.51,
+      83.1
+    ],
+    "macro_f1": [
+      45.38,
+      54.5,
+      53.43,
+      63.25,
+      67.73
+    ]
+  },
+  "stage3_symptom_subtypes_ablation": {
+    "labels": [
+      "1. WavLM Only\n(No Age)",
+      "2. + Direct Age\n(Linear)",
+      "3. + AAFF Proj\n(Default)",
+      "4. + SMOTE\n(Feature Bal)",
+      "5. + Pitch Aug\n(CDA Enhanced)"
+    ],
+    "accuracy": [
+      28.17,
+      32.39,
+      33.8,
+      33.8,
+      38.03
+    ],
+    "macro_f1": [
+      17.52,
+      23.68,
+      25.26,
+      30.3,
+      33.87
+    ]
+  },
+  "end_to_end_hierarchical_ablation": {
+    "labels": [
+      "1. Flat 5-Way\n(No Hierarchy)",
+      "2. Hierarchical\n(Model A Gate)",
+      "3. Hierarchical\n(Model B Gate)",
+      "4. Hierarchical\n(Model C AAFF)",
+      "5. Full Pipeline\n(AAFF + CDA)"
+    ],
+    "accuracy": [
+      54.44,
+      59.17,
+      60.95,
+      61.54,
+      62.72
+    ],
+    "macro_f1": [
+      25.2,
+      29.56,
+      34.03,
+      35.47,
+      41.26
+    ]
+  },
+  "cumulative_progression": {
+    "steps": [
+      "Baseline\n(Flat WavLM)",
+      "+ Hierarchical\nGating",
+      "+ Age Fusion\n(Direct Age)",
+      "+ AAFF\nProjection",
+      "+ Pitch Nuance\nAug (CDA)"
+    ],
+    "macro_f1": [
+      25.2,
+      29.56,
+      34.03,
+      35.47,
+      41.26
+    ],
+    "accuracy": [
+      54.44,
+      59.17,
+      60.95,
+      61.54,
+      62.72
+    ]
+  }
+}

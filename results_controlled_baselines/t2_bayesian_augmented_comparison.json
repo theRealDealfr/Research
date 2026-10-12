@@ -1,0 +1,142 @@
+{
+    "1_Unaugmented_Baseline": {
+        "params": {
+            "learning_rate": 0.001,
+            "weight_decay": 0.01,
+            "dropout": 0.2,
+            "proj_dim": 256,
+            "batch_size": 16
+        },
+        "metrics": {
+            "accuracy": 0.7887323943661971,
+            "f1_macro": 0.6750076289288984,
+            "precision_macro": 0.6595860566448801,
+            "recall_macro": 0.7069209039548023,
+            "per_class": {
+                "articulation": 0.8672566371681416,
+                "phonological": 0.4827586206896552
+            },
+            "gender_breakdown": {
+                "male_f1": 0.6157303370786518,
+                "female_f1": 1.0,
+                "disparity": 0.38426966292134823
+            },
+            "confusion_matrix": [
+                [
+                    49,
+                    10
+                ],
+                [
+                    5,
+                    7
+                ]
+            ],
+            "report_text": "              precision    recall  f1-score   support\n\narticulation       0.91      0.83      0.87        59\nphonological       0.41      0.58      0.48        12\n\n    accuracy                           0.79        71\n   macro avg       0.66      0.71      0.68        71\nweighted avg       0.82      0.79      0.80        71\n"
+        }
+    },
+    "2_Augmented_Default": {
+        "params": {
+            "learning_rate": 0.001,
+            "weight_decay": 0.01,
+            "dropout": 0.2,
+            "proj_dim": 256,
+            "batch_size": 16
+        },
+        "metrics": {
+            "accuracy": 0.7887323943661971,
+            "f1_macro": 0.6358974358974359,
+            "precision_macro": 0.6319628647214854,
+            "recall_macro": 0.6405367231638418,
+            "per_class": {
+                "articulation": 0.8717948717948718,
+                "phonological": 0.4
+            },
+            "gender_breakdown": {
+                "male_f1": 0.5894736842105264,
+                "female_f1": 0.7878787878787878,
+                "disparity": 0.19840510366826147
+            },
+            "confusion_matrix": [
+                [
+                    51,
+                    8
+                ],
+                [
+                    7,
+                    5
+                ]
+            ],
+            "report_text": "              precision    recall  f1-score   support\n\narticulation       0.88      0.86      0.87        59\nphonological       0.38      0.42      0.40        12\n\n    accuracy                           0.79        71\n   macro avg       0.63      0.64      0.64        71\nweighted avg       0.80      0.79      0.79        71\n"
+        }
+    },
+    "3_Unaugmented_Bayesian": {
+        "params": {
+            "learning_rate": 0.0015696396388661157,
+            "weight_decay": 0.058293845429947415,
+            "dropout": 0.1,
+            "proj_dim": 512,
+            "batch_size": 32
+        },
+        "metrics": {
+            "accuracy": 0.8309859154929577,
+            "f1_macro": 0.6772727272727272,
+            "precision_macro": 0.6926229508196722,
+            "recall_macro": 0.6659604519774012,
+            "per_class": {
+                "articulation": 0.9,
+                "phonological": 0.45454545454545453
+            },
+            "gender_breakdown": {
+                "male_f1": 0.6364795918367347,
+                "female_f1": 0.7878787878787878,
+                "disparity": 0.1513991960420531
+            },
+            "confusion_matrix": [
+                [
+                    54,
+                    5
+                ],
+                [
+                    7,
+                    5
+                ]
+            ],
+            "report_text": "              precision    recall  f1-score   support\n\narticulation       0.89      0.92      0.90        59\nphonological       0.50      0.42      0.45        12\n\n    accuracy                           0.83        71\n   macro avg       0.69      0.67      0.68        71\nweighted avg       0.82      0.83      0.82        71\n"
+        }
+    },
+    "4_Augmented_Bayesian_Combined": {
+        "params": {
+            "learning_rate": 0.00432543242796456,
+            "weight_decay": 0.03821129441691227,
+            "dropout": 0.1,
+            "proj_dim": 128,
+            "batch_size": 32
+        },
+        "metrics": {
+            "accuracy": 0.7746478873239436,
+            "f1_macro": 0.6441102756892231,
+            "precision_macro": 0.6329545454545454,
+            "recall_macro": 0.6652542372881356,
+            "per_class": {
+                "articulation": 0.8596491228070176,
+                "phonological": 0.42857142857142855
+            },
+            "gender_breakdown": {
+                "male_f1": 0.620583717357911,
+                "female_f1": 0.7142857142857142,
+                "disparity": 0.09370199692780323
+            },
+            "confusion_matrix": [
+                [
+                    49,
+                    10
+                ],
+                [
+                    6,
+                    6
+                ]
+            ],
+            "report_text": "              precision    recall  f1-score   support\n\narticulation       0.89      0.83      0.86        59\nphonological       0.38      0.50      0.43        12\n\n    accuracy                           0.77        71\n   macro avg       0.63      0.67      0.64        71\nweighted avg       0.80      0.77      0.79        71\n"
+        }
+    }
+}

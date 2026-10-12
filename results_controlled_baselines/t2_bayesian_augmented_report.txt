@@ -1,0 +1,87 @@
+=== TASK 2: DISORDER_TYPE CLASSIFICATION PERFORMANCE REPORT ===
+Combining Bayesian Hyperparameter Tuning and Gender-Stratified Pitch Augmentation
+
+--- Configuration: 1_Unaugmented_Baseline ---
+Hyperparameters: {'learning_rate': 0.001, 'weight_decay': 0.01, 'dropout': 0.2, 'proj_dim': 256, 'batch_size': 16}
+Test Accuracy:  0.7887
+Test Macro F1:  0.6750
+Test Precision: 0.6596
+Test Recall:    0.7069
+Male Macro F1:  0.6157 | Female Macro F1: 1.0000 | Disparity: 0.3843
+Confusion Matrix [articulation, phonological]: [[49, 10], [5, 7]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+articulation       0.91      0.83      0.87        59
+phonological       0.41      0.58      0.48        12
+
+    accuracy                           0.79        71
+   macro avg       0.66      0.71      0.68        71
+weighted avg       0.82      0.79      0.80        71
+
+============================================================
+
+--- Configuration: 2_Augmented_Default ---
+Hyperparameters: {'learning_rate': 0.001, 'weight_decay': 0.01, 'dropout': 0.2, 'proj_dim': 256, 'batch_size': 16}
+Test Accuracy:  0.7887
+Test Macro F1:  0.6359
+Test Precision: 0.6320
+Test Recall:    0.6405
+Male Macro F1:  0.5895 | Female Macro F1: 0.7879 | Disparity: 0.1984
+Confusion Matrix [articulation, phonological]: [[51, 8], [7, 5]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+articulation       0.88      0.86      0.87        59
+phonological       0.38      0.42      0.40        12
+
+    accuracy                           0.79        71
+   macro avg       0.63      0.64      0.64        71
+weighted avg       0.80      0.79      0.79        71
+
+============================================================
+
+--- Configuration: 3_Unaugmented_Bayesian ---
+Hyperparameters: {'learning_rate': 0.0015696396388661157, 'weight_decay': 0.058293845429947415, 'dropout': 0.1, 'proj_dim': 512, 'batch_size': 32}
+Test Accuracy:  0.8310
+Test Macro F1:  0.6773
+Test Precision: 0.6926
+Test Recall:    0.6660
+Male Macro F1:  0.6365 | Female Macro F1: 0.7879 | Disparity: 0.1514
+Confusion Matrix [articulation, phonological]: [[54, 5], [7, 5]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+articulation       0.89      0.92      0.90        59
+phonological       0.50      0.42      0.45        12
+
+    accuracy                           0.83        71
+   macro avg       0.69      0.67      0.68        71
+weighted avg       0.82      0.83      0.82        71
+
+============================================================
+
+--- Configuration: 4_Augmented_Bayesian_Combined ---
+Hyperparameters: {'learning_rate': 0.00432543242796456, 'weight_decay': 0.03821129441691227, 'dropout': 0.1, 'proj_dim': 128, 'batch_size': 32}
+Test Accuracy:  0.7746
+Test Macro F1:  0.6441
+Test Precision: 0.6330
+Test Recall:    0.6653
+Male Macro F1:  0.6206 | Female Macro F1: 0.7143 | Disparity: 0.0937
+Confusion Matrix [articulation, phonological]: [[49, 10], [6, 6]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+articulation       0.89      0.83      0.86        59
+phonological       0.38      0.50      0.43        12
+
+    accuracy                           0.77        71
+   macro avg       0.63      0.67      0.64        71
+weighted avg       0.80      0.77      0.79        71
+
+============================================================
+

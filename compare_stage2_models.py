@@ -97,8 +97,10 @@ def main():
     print(f"Device           : {dev}\n")
 
     # ── Load models ──
-    baseline = AAFFDisorderClassifier(num_classes=nc).to(dev)
-    baseline.load_state_dict(torch.load(baseline_ckpt, map_location=dev, weights_only=True))
+    base_state = torch.load(baseline_ckpt, map_location=dev, weights_only=True)
+    base_proj_dim = base_state["projection.0.weight"].shape[0] if "projection.0.weight" in base_state else 256
+    baseline = AAFFDisorderClassifier(num_classes=nc, proj_dim=base_proj_dim).to(dev)
+    baseline.load_state_dict(base_state)
 
     improved = AAFFDisorderClassifierImproved(num_classes=nc).to(dev)
     improved.load_state_dict(torch.load(improved_ckpt, map_location=dev, weights_only=True))
