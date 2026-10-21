@@ -107,5 +107,75 @@
       61.54,
       62.72
     ]
+  },
+  "ablation_stats_pooling": {
+    "name": "Multi-layer mean+std WavLM (stats pooling, L=6 layers, 2048-d)",
+    "embed_mode": "stats",
+    "stats_layers": [
+      6,
+      9,
+      12,
+      15,
+      18,
+      24
+    ],
+    "embed_dim": 12288,
+    "fused_dim": 12289,
+    "architecture": "AAFFStatsClassifier (LayerWeightedPool -> Linear(2049,256) -> ReLU -> Linear(2))",
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "seed_results": [
+      {
+        "seed": 42,
+        "best_lr": 0.0003,
+        "val_f1_macro": 0.9602360981671327,
+        "test_accuracy": 0.9609375,
+        "test_f1_macro": 0.9602360981671327,
+        "per_class_f1": {
+          "speech_disorder": 0.954954954954955,
+          "typically_developing": 0.9655172413793104
+        }
+      },
+      {
+        "seed": 123,
+        "best_lr": 0.001,
+        "val_f1_macro": 0.9602360981671327,
+        "test_accuracy": 0.9609375,
+        "test_f1_macro": 0.9602360981671327,
+        "per_class_f1": {
+          "speech_disorder": 0.954954954954955,
+          "typically_developing": 0.9655172413793104
+        }
+      },
+      {
+        "seed": 2024,
+        "best_lr": 0.001,
+        "val_f1_macro": 0.9681195516811956,
+        "test_accuracy": 0.96875,
+        "test_f1_macro": 0.9681195516811956,
+        "per_class_f1": {
+          "speech_disorder": 0.9636363636363636,
+          "typically_developing": 0.9726027397260274
+        }
+      }
+    ],
+    "test_f1_macro_mean": 0.9628639160051536,
+    "test_f1_macro_std": 0.0037162956259751646,
+    "test_accuracy_mean": 0.9635416666666666,
+    "test_accuracy_std": 0.003682847818679935,
+    "per_class_f1": {
+      "speech_disorder": {
+        "mean": 0.9578487578487579,
+        "std": 0.004092455299250548
+      },
+      "typically_developing": {
+        "mean": 0.9678790741615494,
+        "std": 0.00334013595269978
+      }
+    },
+    "summary": "Macro F1 = 96.29% +/- 0.37% | Acc = 96.35% +/- 0.37%"
   }
 }

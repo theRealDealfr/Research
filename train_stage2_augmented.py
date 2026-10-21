@@ -10,11 +10,17 @@ Generates:
 2. Per-class report and confusion matrix across the 4 disorder symptoms.
 3. Gender fairness breakdown (Male vs. Female Macro F1).
 4. Direct comparison against the original unaugmented baseline.
+
+New in this version:
+  --embed_mode last|stats  (default last = existing behavior)
+  In stats mode the [L, 2048] tensor is collapsed by a learnable LayerWeightedPool
+  before age fusion. Input dimension is inferred from data, not hardcoded.
 """
 
 import os
 import copy
 import random
+import argparse
 import numpy as np
 import pandas as pd
 import torch
@@ -31,11 +37,27 @@ def set_all_seeds(seed=42):
         torch.cuda.manual_seed_all(seed)
 
 
+# --- Layer-Weighting Module (stats mode) ---
+
+class LayerWeightedPool(nn.Module):
+    """Softmax-weighted sum of L per-layer [mean||std] vectors.
+    Input : (B, L, D)
+    Output: (B, D)
+    Initialized uniform.
+    """
+    def __init__(self, num_layers: int):
+        super().__init__()
+        self.weights = nn.Parameter(torch.zeros(num_layers))
+
+    def forward(self, x):
+        w = torch.softmax(self.weights, dim=0)
+        return (x * w.unsqueeze(0).unsqueeze(-1)).sum(dim=1)
+
+
 class AAFFDisorderClassifier(nn.Module):
     """
     Standard AAFF Architecture (preserves Model C / Stage 2 structure):
-    1024-d speech embedding + 1-d normalized age (1025-d)
-    -> Linear(1025, 256) -> ReLU() -> Dropout(0.2) -> Linear(256, num_classes)
+    in_features-d -> Linear(proj_dim) -> ReLU() -> Dropout -> Linear(num_classes)
     """
     def __init__(self, in_features=1025, proj_dim=256, dropout=0.2, num_classes=4):
         super().__init__()
@@ -55,7 +77,7 @@ class AAFFDisorderClassifier(nn.Module):
 class AAFFDisorderClassifierImproved(nn.Module):
     """
     Improved AAFF Architecture:
-    1025-d -> Linear(512)->ReLU->Dropout(0.3) -> Linear(256)->ReLU->Dropout(0.3) -> Linear(num_classes)
+    in_features-d -> Linear(512)->ReLU->Dropout -> Linear(256)->ReLU->Dropout -> Linear(nc)
     """
     def __init__(self, in_features=1025, num_classes=4, dropout=0.3):
         super().__init__()
@@ -189,23 +211,62 @@ def train_augmented_model(
 
 
 def main():
-    augmented_data_path = "./cached_embeddings/wavlm_stage2_disorder_symptom_augmented.pt"
+    parser = argparse.ArgumentParser(description="Stage 2 Augmented Training")
+    parser.add_argument(
+        "--embed_mode",
+        choices=["last", "stats"],
+        default="last",
+        help=(
+            "'last' = use pooled last-layer augmented embeddings (default). "
+            "'stats' = use multi-layer mean+std embeddings from "
+            "./cached_embeddings/wavlm_stats_layers/wavlm_large_stats_layers_seed42.pt"
+        ),
+    )
+    args = parser.parse_args()
+
+    if args.embed_mode == "stats":
+        augmented_data_path = "./cached_embeddings/wavlm_stats_layers/wavlm_large_stats_layers_seed42.pt"
+    else:
+        augmented_data_path = "./cached_embeddings/wavlm_stage2_disorder_symptom_augmented.pt"
+
     if not os.path.exists(augmented_data_path):
-        print(f"Error: {augmented_data_path} not found. Please run extract_stage2_embeddings_augmented.py first.")
+        print(f"Error: {augmented_data_path} not found. Please run the appropriate extraction script first.")
         return
 
     print("=" * 70)
-    print("STAGE 2 MULTICLASS DISORDER CLASSIFIER TRAINING WITH PITCH AUGMENTATION")
+    print(f"STAGE 2 MULTICLASS DISORDER CLASSIFIER TRAINING  [embed_mode={args.embed_mode}]")
     print("=" * 70)
 
     cache = torch.load(augmented_data_path, map_location="cpu", weights_only=False)
-    disorder_classes = cache["disorder_classes"]
+
+    if args.embed_mode == "stats":
+        num_layers = cache["train"]["stats_embeddings"].shape[1]
+        pool = LayerWeightedPool(num_layers)
+
+        def get_emb(split_dict):
+            se = split_dict["stats_embeddings"].float()
+            with torch.no_grad():
+                return pool(se)
+
+        train_emb = get_emb(cache["train"])
+        val_emb   = get_emb(cache["val"])
+        test_emb  = get_emb(cache["test"])
+        disorder_classes = cache.get("unique_labels", cache.get("disorder_classes", []))
+    else:
+        train_emb = cache["train"]["embeddings"]
+        val_emb   = cache["val"]["embeddings"]
+        test_emb  = cache["test"]["embeddings"]
+        disorder_classes = cache["disorder_classes"]
+
+    emb_dim = train_emb.shape[1]
+    in_features = emb_dim + 1    # +1 for age
     num_classes = len(disorder_classes)
     print(f"Target classes ({num_classes}): {disorder_classes}")
+    print(f"emb_dim={emb_dim}, in_features={in_features}")
 
-    train_data = TensorDataset(cache["train"]["embeddings"], cache["train"]["ages"], cache["train"]["labels"])
-    val_data   = TensorDataset(cache["val"]["embeddings"], cache["val"]["ages"], cache["val"]["labels"])
-    test_data  = TensorDataset(cache["test"]["embeddings"], cache["test"]["ages"], cache["test"]["labels"])
+    train_data = TensorDataset(train_emb, cache["train"]["ages"], cache["train"]["labels"])
+    val_data   = TensorDataset(val_emb,   cache["val"]["ages"],   cache["val"]["labels"])
+    test_data  = TensorDataset(test_emb,  cache["test"]["ages"],  cache["test"]["labels"])
     test_genders = cache["test"]["genders"]
 
     print(f"\nDataset Splits:")
@@ -219,13 +280,13 @@ def main():
     output_dir = "./results_controlled_baselines"
     os.makedirs(output_dir, exist_ok=True)
 
-    # 1. Train Standard AAFF Model on Augmented Data
+    # 1. Train Standard AAFF Model
     print("=" * 70)
-    print("Training Model 1: Standard AAFF (1025 -> 256 -> 4) on Augmented Data")
+    print(f"Training Model 1: Standard AAFF ({in_features} -> 256 -> {num_classes})")
     print("=" * 70)
     best_model_std, best_lr_std, val_res_std = train_augmented_model(
         model_cls=AAFFDisorderClassifier,
-        model_kwargs={"in_features": 1025, "proj_dim": 256, "dropout": 0.2, "num_classes": num_classes},
+        model_kwargs={"in_features": in_features, "proj_dim": 256, "dropout": 0.2, "num_classes": num_classes},
         train_data=train_data,
         val_data=val_data,
         device=device,
@@ -237,13 +298,13 @@ def main():
     test_loader = DataLoader(test_data, batch_size=16, shuffle=False)
     test_res_std = evaluate_model(best_model_std, test_loader, device)
 
-    # 2. Train Improved AAFF Model (Wider head + Dropout) on Augmented Data
+    # 2. Train Improved AAFF Model
     print("\n" + "=" * 70)
-    print("Training Model 2: Improved AAFF (1025 -> 512 -> 256 -> 4) on Augmented Data")
+    print(f"Training Model 2: Improved AAFF ({in_features} -> 512 -> 256 -> {num_classes})")
     print("=" * 70)
     best_model_imp, best_lr_imp, val_res_imp = train_augmented_model(
         model_cls=AAFFDisorderClassifierImproved,
-        model_kwargs={"in_features": 1025, "num_classes": num_classes, "dropout": 0.3},
+        model_kwargs={"in_features": in_features, "num_classes": num_classes, "dropout": 0.3},
         train_data=train_data,
         val_data=val_data,
         device=device,
@@ -254,7 +315,7 @@ def main():
     )
     test_res_imp = evaluate_model(best_model_imp, test_loader, device)
 
-    # Pick the best performing model between standard and improved on validation F1
+    # Pick the best performing model
     if val_res_imp["f1_macro"] >= val_res_std["f1_macro"]:
         best_model = best_model_imp
         best_variant_name = "Improved AAFF (Wider Head)"
@@ -268,7 +329,7 @@ def main():
         best_val_res = val_res_std
         best_test_res = test_res_std
 
-    # Gender-stratified evaluation on untouched test set
+    # Gender-stratified evaluation
     df_eval = pd.DataFrame({
         "true": best_test_res["y_true"],
         "pred": best_test_res["y_pred"],
@@ -292,13 +353,13 @@ def main():
                 "report": classification_report(g_true, g_pred, target_names=disorder_classes, zero_division=0)
             }
 
-    # Confusion matrix and detailed classification report
     rpt_str = classification_report(best_test_res["y_true"], best_test_res["y_pred"], target_names=disorder_classes, zero_division=0)
     cm = confusion_matrix(best_test_res["y_true"], best_test_res["y_pred"])
 
     print("\n" + "=" * 70)
-    print(f"FINAL TEST SET EVALUATION ({best_variant_name} with Gender-Stratified Pitch Augmentation)")
+    print(f"FINAL TEST SET EVALUATION ({best_variant_name})")
     print("=" * 70)
+    print(f"embed_mode:             {args.embed_mode}")
     print(f"Optimal Learning Rate:  {best_lr}")
     print(f"Validation Macro F1:    {best_val_res['f1_macro']:.4f}")
     print(f"Test Accuracy:          {best_test_res['accuracy']:.4f} ({best_test_res['accuracy']*100:.2f}%)")
@@ -318,30 +379,26 @@ def main():
         gm = gender_metrics[g]
         print(f"Gender {g} (N={gm['support']}): Accuracy={gm['accuracy']:.4f}, Macro F1={gm['f1_macro']:.4f}, Precision={gm['precision_macro']:.4f}, Recall={gm['recall_macro']:.4f}")
 
-    # Baseline comparison (original unaugmented baseline was Test Acc: 0.3380, Test F1: 0.3020)
-    baseline_report_file = os.path.join(output_dir, "stage2_disorder_classification_report.txt")
     print("\n" + "=" * 70)
-    print("COMPARISON: UNAUGMENTED BASELINE vs GENDER-STRATIFIED PITCH AUGMENTED")
+    print("COMPARISON: UNAUGMENTED BASELINE vs CURRENT")
     print("=" * 70)
     base_acc = 0.3380
     base_f1 = 0.3020
     delta_acc = (best_test_res['accuracy'] - base_acc) * 100
     delta_f1 = (best_test_res['f1_macro'] - base_f1) * 100
-    print(f"Baseline Test Accuracy:  {base_acc:.4f}  ->  Augmented: {best_test_res['accuracy']:.4f}  (Delta: {delta_acc:+.2f}%)")
-    print(f"Baseline Test Macro F1:  {base_f1:.4f}  ->  Augmented: {best_test_res['f1_macro']:.4f}  (Delta: {delta_f1:+.2f}%)")
+    print(f"Baseline Test Accuracy:  {base_acc:.4f}  ->  Current: {best_test_res['accuracy']:.4f}  (Delta: {delta_acc:+.2f}%)")
+    print(f"Baseline Test Macro F1:  {base_f1:.4f}  ->  Current: {best_test_res['f1_macro']:.4f}  (Delta: {delta_f1:+.2f}%)")
     print("=" * 70)
 
-    # Save model checkpoint
     model_save_path = os.path.join(output_dir, "model_stage2_augmented_best.pt")
     torch.save(best_model.state_dict(), model_save_path)
-    print(f"\nSaved best augmented Stage 2 model weights to: {model_save_path}")
+    print(f"\nSaved best Stage 2 model weights to: {model_save_path}")
 
-    # Save report
     report_file = os.path.join(output_dir, "stage2_augmented_classification_report.txt")
     with open(report_file, "w") as f:
-        f.write("=== STAGE 2 GENDER-STRATIFIED PITCH AUGMENTED CLASSIFICATION REPORT ===\n")
+        f.write("=== STAGE 2 AUGMENTED CLASSIFICATION REPORT ===\n")
+        f.write(f"embed_mode: {args.embed_mode} | in_features: {in_features}\n")
         f.write(f"Architecture: {best_variant_name}\n")
-        f.write(f"Target Column: disorder_symptom (Disorder Subtypes)\n")
         f.write(f"Classes: {disorder_classes}\n")
         f.write(f"Optimal Learning Rate: {best_lr}\n\n")
         f.write(f"Val Accuracy: {best_val_res['accuracy']:.4f} | Val Macro F1: {best_val_res['f1_macro']:.4f}\n")

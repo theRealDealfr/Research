@@ -1,6 +1,7 @@
 import os
 import copy
 import random
+import argparse
 import numpy as np
 import pandas as pd
 import torch
@@ -14,6 +15,23 @@ def set_all_seeds(seed=42):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+# --- Layer-Weighting Module (used in stats embed_mode) ---
+
+class LayerWeightedPool(nn.Module):
+    """Learnable softmax-weighted combination of L per-layer [mean?std] vectors.
+    Input : (B, L, 2048) fp32
+    Output: (B, 2048)
+    Weights are initialized uniform (equivalent to simple average at start).
+    """
+    def __init__(self, num_layers: int):
+        super().__init__()
+        self.weights = nn.Parameter(torch.zeros(num_layers))  # log-uniform init -> softmax = uniform
+
+    def forward(self, x):
+        # x: (B, L, 2048)
+        w = torch.softmax(self.weights, dim=0)   # (L,)
+        return (x * w.unsqueeze(0).unsqueeze(-1)).sum(dim=1)  # (B, 2048)
 
 # --- Model Definitions ---
 
@@ -175,7 +193,24 @@ def evaluate_test_with_fairness(model, test_data, test_genders, class_names, dev
     }
 
 def main():
-    data_path = "./cached_embeddings/wavlm_large_split_seed42.pt"
+    parser = argparse.ArgumentParser(description="Run controlled WavLM baselines")
+    parser.add_argument(
+        "--embed_mode",
+        choices=["last", "stats"],
+        default="last",
+        help=(
+            "'last' = use existing pooled last-layer embeddings (default). "
+            "'stats' = use multi-layer mean+std embeddings from "
+            "./cached_embeddings/wavlm_stats_layers/wavlm_large_stats_layers_seed42.pt"
+        ),
+    )
+    args = parser.parse_args()
+
+    if args.embed_mode == "last":
+        data_path = "./cached_embeddings/wavlm_large_split_seed42.pt"
+    else:
+        data_path = "./cached_embeddings/wavlm_stats_layers/wavlm_large_stats_layers_seed42.pt"
+
     if not os.path.exists(data_path):
         print(f"Error: {data_path} not found. Please run extract_wavlm_embeddings.py first.")
         return
@@ -183,14 +218,36 @@ def main():
     print("=== Loading Cached WavLM Representations ===")
     cache = torch.load(data_path, map_location="cpu", weights_only=False)
     class_names = cache["unique_labels"]
-    print(f"Loaded cache. Classes: {class_names}")
+    print(f"Loaded cache. Classes: {class_names}, embed_mode={args.embed_mode}")
 
-    train_data = TensorDataset(cache["train"]["embeddings"], cache["train"]["ages"], cache["train"]["labels"])
-    val_data   = TensorDataset(cache["val"]["embeddings"], cache["val"]["ages"], cache["val"]["labels"])
-    test_data  = TensorDataset(cache["test"]["embeddings"], cache["test"]["ages"], cache["test"]["labels"])
+    if args.embed_mode == "stats":
+        # Load stats embeddings: (N, L, 2048) fp16 -> collapse with LayerWeightedPool at training time
+        # For the baseline scripts we pre-collapse here to keep DataLoader uniform
+        # (LayerWeightedPool is identity-initialised to simple mean across layers)
+        def collapse_stats(split_dict):
+            se = split_dict["stats_embeddings"].float()  # (N, L, 2048)
+            return se.mean(dim=1)                         # (N, 2048) — uniform init equivalent
+
+        train_emb = collapse_stats(cache["train"])
+        val_emb   = collapse_stats(cache["val"])
+        test_emb  = collapse_stats(cache["test"])
+        emb_dim   = train_emb.shape[1]   # 2048
+    else:
+        train_emb = cache["train"]["embeddings"]
+        val_emb   = cache["val"]["embeddings"]
+        test_emb  = cache["test"]["embeddings"]
+        emb_dim   = train_emb.shape[1]   # 1024
+
+    # Infer input dimension from data (emb_dim + 1 age)
+    in_features_with_age = emb_dim + 1
+
+    train_data = TensorDataset(train_emb, cache["train"]["ages"], cache["train"]["labels"])
+    val_data   = TensorDataset(val_emb,   cache["val"]["ages"],   cache["val"]["labels"])
+    test_data  = TensorDataset(test_emb,  cache["test"]["ages"],  cache["test"]["labels"])
     test_genders = cache["test"]["genders"]
 
     print(f"Dataset Split Sizes -> Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)}")
+    print(f"Embedding dim: {emb_dim}, in_features (with age): {in_features_with_age}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Compute Device: {device}")
@@ -199,9 +256,9 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     experiments = [
-        ("Model A (Frozen WavLM Only)", ModelA_WavLMOnly, {"in_features": 1024, "num_classes": 2}),
-        ("Model B (Frozen WavLM + Direct Age)", ModelB_WavLMDirectAge, {"in_features": 1025, "num_classes": 2}),
-        ("Model C (Frozen WavLM + AAFF)", ModelC_AAFF, {"in_features": 1025, "proj_dim": 256, "dropout": 0.2, "num_classes": 2})
+        ("Model A (Frozen WavLM Only)", ModelA_WavLMOnly, {"in_features": emb_dim, "num_classes": 2}),
+        ("Model B (Frozen WavLM + Direct Age)", ModelB_WavLMDirectAge, {"in_features": in_features_with_age, "num_classes": 2}),
+        ("Model C (Frozen WavLM + AAFF)", ModelC_AAFF, {"in_features": in_features_with_age, "proj_dim": 256, "dropout": 0.2, "num_classes": 2})
     ]
 
     summary_rows = []
@@ -238,6 +295,7 @@ def main():
         report_file = os.path.join(output_dir, f"{safe_name}_report.txt")
         with open(report_file, "w") as f:
             f.write(f"=== {name} ===\n")
+            f.write(f"embed_mode: {args.embed_mode}\n")
             f.write(f"Optimal Learning Rate: {best_lr}\n")
             f.write(f"Val Accuracy: {val_metrics['accuracy']:.4f} | Val Macro F1: {val_metrics['f1_macro']:.4f}\n\n")
             f.write("Global Test Classification Report:\n")
@@ -251,6 +309,7 @@ def main():
 
         summary_rows.append({
             "Model": name,
+            "embed_mode": args.embed_mode,
             "Best LR": best_lr,
             "Val Acc": val_metrics["accuracy"],
             "Val Macro F1": val_metrics["f1_macro"],

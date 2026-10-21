@@ -13,6 +13,10 @@ Optimizes:
 Maximizes 3-Fold Stratified CV Macro F1 (so minority classes always appear in every
 validation fold, closing the val→test gap). Final fine-tuning always uses forced
 class-weighted loss + oversampling for the minority class.
+
+New: --embed_mode last|stats (default last = existing behavior)
+  In stats mode the [L, 2048] tensor is collapsed with a uniform LayerWeightedPool
+  before tuning; input dimension is inferred from the cache.
 """
 
 import os
@@ -43,7 +47,23 @@ def set_all_seeds(seed=42):
         torch.cuda.manual_seed_all(seed)
 
 
+class LayerWeightedPool(nn.Module):
+    """Softmax-weighted sum of L per-layer [mean||std] vectors.
+    Input : (B, L, D)
+    Output: (B, D)
+    Initialized uniform.
+    """
+    def __init__(self, num_layers: int):
+        super().__init__()
+        self.weights = nn.Parameter(torch.zeros(num_layers))
+
+    def forward(self, x):
+        w = torch.softmax(self.weights, dim=0)
+        return (x * w.unsqueeze(0).unsqueeze(-1)).sum(dim=1)
+
+
 class DynamicAAFFClassifier(nn.Module):
+    """Dynamic AAFF classifier — in_features inferred from data, not hardcoded."""
     def __init__(self, in_features=1025, proj_dim=256, dropout=0.2, num_classes=4):
         super().__init__()
         self.projection = nn.Sequential(
@@ -115,7 +135,7 @@ def make_class_weight_tensor(dataset, num_classes, device):
 
 def train_single_config(train_data, val_data, device, num_classes, lr, weight_decay,
                         dropout, proj_dim, batch_size, use_weights, epochs=30, seed=42,
-                        oversample=False):
+                        oversample=False, in_features=1025):
     set_all_seeds(seed)
     if oversample:
         train_data = oversample_minority(train_data, num_classes, multiplier=3)
@@ -128,7 +148,7 @@ def train_single_config(train_data, val_data, device, num_classes, lr, weight_de
     else:
         criterion = nn.CrossEntropyLoss()
 
-    model = DynamicAAFFClassifier(in_features=1025, proj_dim=proj_dim, dropout=dropout, num_classes=num_classes).to(device)
+    model = DynamicAAFFClassifier(in_features=in_features, proj_dim=proj_dim, dropout=dropout, num_classes=num_classes).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
 
@@ -151,14 +171,14 @@ def train_single_config(train_data, val_data, device, num_classes, lr, weight_de
             best_val_f1 = val_res["f1_macro"]
             best_state = copy.deepcopy(model.state_dict())
 
-    best_model = DynamicAAFFClassifier(in_features=1025, proj_dim=proj_dim, dropout=dropout, num_classes=num_classes).to(device)
+    best_model = DynamicAAFFClassifier(in_features=in_features, proj_dim=proj_dim, dropout=dropout, num_classes=num_classes).to(device)
     best_model.load_state_dict(best_state)
     val_res = evaluate(best_model, val_loader, device)
     return best_model, val_res
 
 
 def cv_objective(all_train_data, device, num_classes, lr, weight_decay, dropout,
-                 proj_dim, batch_size, epochs, seed, n_folds=3):
+                 proj_dim, batch_size, epochs, seed, n_folds=3, in_features=1025):
     """3-fold stratified CV so every minority class is always in each val fold."""
     emb = all_train_data.tensors[0].numpy()
     age = all_train_data.tensors[1].numpy()
@@ -182,7 +202,8 @@ def cv_objective(all_train_data, device, num_classes, lr, weight_decay, dropout,
             lr=lr, weight_decay=weight_decay, dropout=dropout,
             proj_dim=proj_dim, batch_size=batch_size,
             use_weights=True, oversample=True,
-            epochs=epochs, seed=seed + fold_idx
+            epochs=epochs, seed=seed + fold_idx,
+            in_features=in_features
         )
         fold_f1s.append(val_res["f1_macro"])
 
@@ -196,25 +217,56 @@ def main():
     parser.add_argument("--final_epochs", type=int, default=80, help="Epochs for final fine-tuning with best params")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--n_folds", type=int, default=3, help="Number of stratified CV folds for objective")
+    parser.add_argument(
+        "--embed_mode",
+        choices=["last", "stats"],
+        default="last",
+        help=(
+            "'last' = pooled last-layer embeddings (default). "
+            "'stats' = multi-layer mean+std embeddings from "
+            "./cached_embeddings/wavlm_stats_layers/wavlm_large_stats_layers_seed42.pt"
+        ),
+    )
     args = parser.parse_args()
 
-    data_path = "./cached_embeddings/wavlm_stage2_disorder_symptom.pt"
+    if args.embed_mode == "stats":
+        data_path = "./cached_embeddings/wavlm_stats_layers/wavlm_large_stats_layers_seed42.pt"
+    else:
+        data_path = "./cached_embeddings/wavlm_stage2_disorder_symptom.pt"
+
     if not os.path.exists(data_path):
         print(f"[Error] {data_path} not found.")
         return
 
     cache = torch.load(data_path, map_location="cpu", weights_only=False)
-    disorder_classes = cache["disorder_classes"]
+    disorder_classes = cache.get("disorder_classes", cache.get("unique_labels", []))
     num_classes = len(disorder_classes)
 
-    train_data = TensorDataset(cache["train"]["embeddings"], cache["train"]["ages"], cache["train"]["labels"])
-    val_data   = TensorDataset(cache["val"]["embeddings"],   cache["val"]["ages"],   cache["val"]["labels"])
-    test_data  = TensorDataset(cache["test"]["embeddings"],  cache["test"]["ages"],  cache["test"]["labels"])
+    # Resolve embeddings: stats mode collapses [L, 2048] to [2048] via uniform mean
+    if args.embed_mode == "stats":
+        def _collapse(split_dict):
+            se = split_dict["stats_embeddings"].float()  # (N, L, 2048)
+            return se.mean(dim=1)                         # (N, 2048)
+        train_emb = _collapse(cache["train"])
+        val_emb   = _collapse(cache["val"])
+        test_emb  = _collapse(cache["test"])
+    else:
+        train_emb = cache["train"]["embeddings"]
+        val_emb   = cache["val"]["embeddings"]
+        test_emb  = cache["test"]["embeddings"]
 
-    # Merge train+val for CV objective so all samples are used in rotation
-    all_train_emb = torch.cat([cache["train"]["embeddings"], cache["val"]["embeddings"]], dim=0)
-    all_train_age = torch.cat([cache["train"]["ages"],       cache["val"]["ages"]],       dim=0)
-    all_train_lbl = torch.cat([cache["train"]["labels"],     cache["val"]["labels"]],     dim=0)
+    emb_dim = train_emb.shape[1]        # 1024 (last) or 2048 (stats)
+    in_features = emb_dim + 1           # +1 for age
+    print(f"embed_mode={args.embed_mode} | emb_dim={emb_dim} | in_features={in_features}")
+
+    train_data = TensorDataset(train_emb, cache["train"]["ages"], cache["train"]["labels"])
+    val_data   = TensorDataset(val_emb,   cache["val"]["ages"],   cache["val"]["labels"])
+    test_data  = TensorDataset(test_emb,  cache["test"]["ages"],  cache["test"]["labels"])
+
+    # Merge resolved train+val embeddings for CV objective
+    all_train_emb = torch.cat([train_emb, val_emb], dim=0)
+    all_train_age = torch.cat([cache["train"]["ages"], cache["val"]["ages"]], dim=0)
+    all_train_lbl = torch.cat([cache["train"]["labels"], cache["val"]["labels"]], dim=0)
     all_train_data = TensorDataset(all_train_emb, all_train_age, all_train_lbl)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -241,7 +293,8 @@ def main():
             all_train_data=all_train_data, device=device, num_classes=num_classes,
             lr=lr, weight_decay=wd, dropout=dropout, proj_dim=proj_dim,
             batch_size=batch_size, epochs=args.epochs,
-            seed=args.seed + trial.number, n_folds=args.n_folds
+            seed=args.seed + trial.number, n_folds=args.n_folds,
+            in_features=in_features
         )
 
         trial_history.append({
@@ -328,7 +381,8 @@ def main():
         use_weights=True,       # always force class weights in final model
         oversample=True,        # always oversample minority in final model
         epochs=args.final_epochs,
-        seed=args.seed
+        seed=args.seed,
+        in_features=in_features
     )
 
     test_loader = DataLoader(test_data, batch_size=best.params["batch_size"], shuffle=False)

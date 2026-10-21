@@ -184,6 +184,11 @@ The project progressed through distinct phases of engineering and scientific ref
      Synthetic Minority Over-sampling Technique (`imblearn.over_sampling.SMOTE`) was applied to the 1025-dimensional fused embedding space before training, synthesizing minority feature vectors in feature space without audio synthesis artifacts.
   3. **Capped Resampling in Dataset Pipelines:**
      Applied minority duplication bounded by `oversample_mult` (default: 3x–5x) to prevent overfitting on identical samples.
+* **Ablation Finding (Isolated SMOTE Effect):**
+  Running the wider head **without** SMOTE (via `python train_stage2_improved.py --no_smote`) yielded:
+  * Test Accuracy: **36.62%** (+2.82% over baseline)
+  * Test Macro F1: **32.57%** (+2.37% over baseline)
+  Adding SMOTE on top *reduced* accuracy back to 33.80% — the synthetic minority samples introduced feature-space noise that **degraded** classifier generalization on this small-sample pediatric corpus. The architectural deepening (wider head + regularisation) was the true driver of improvement.
 
 ---
 
@@ -199,7 +204,9 @@ The project progressed through distinct phases of engineering and scientific ref
   * **Label Smoothing (0.10):** Mitigated model overconfidence on noisy pediatric speech annotations.
   * **Cosine Annealing Learning Rate Schedule:** Applied `torch.optim.lr_scheduler.CosineAnnealingLR` to smooth loss landscape navigation.
 * **Empirical Validation:**
-  Validation Accuracy increased from **50.00% to 55.77%** with significantly lower calibration error across all classes.
+  * **Without SMOTE (wider head + regularisation only):** Val Acc = **51.92%**, Test Acc = **36.62%**, Test Macro F1 = **32.57%**
+  * **With SMOTE (wider head + SMOTE + regularisation):** Val Acc = **55.77%**, Test Acc = **33.80%**, Test Macro F1 = **30.30%**
+  * The wider validation accuracy with SMOTE did **not** translate to better test generalization — the synthetic samples inflated in-distribution performance while harming out-of-distribution robustness. This is a common failure mode of feature-space SMOTE on small clinical datasets with severe class imbalance.
 
 ---
 
@@ -282,10 +289,17 @@ Task 2 (Disorder Type)            2. Augmentation Only                  78.87%  
 Task 2 (Disorder Type)            3. Bayesian Tuning Only               83.10%     67.73%         15.14%  <-- BEST ACC
 Task 2 (Disorder Type)            4. Combined (Aug + Bayes)             77.46%     64.41%          9.37%  <-- BEST FAIRNESS
 --------------------------------------------------------------------------------------------------------
-Stage 2 (Disorder Subtypes)       Baseline AAFF (lr=1e-3, proj=256)     33.80%     30.20%            N/A
-Stage 2 (Disorder Subtypes)       Improved Head (SMOTE + 2-layer)       33.80%     30.30%            N/A
-Stage 2 (Disorder Subtypes)       Bayesian Best (proj=512, lr=4e-3)     33.80%     31.34%            N/A
-Stage 2 (Disorder Subtypes)       Augmented AAFF (Pitch CDA)            38.03%     33.87%            N/A  <-- BEST S2
+Stage 2 (Disorder Subtypes)       S0: Baseline AAFF (in->256->4)        29.58%     22.91%            N/A  <- ablation base
+Stage 2 (Disorder Subtypes)       S1: + Wider Head (in->512->256->4)    36.62%     32.57%            N/A  +7.04% / +9.66%
+Stage 2 (Disorder Subtypes)       S2: + CDA Pitch Augmentation          33.80%     30.40%            N/A  +4.22% / +7.49%
+Stage 2 (Disorder Subtypes)       S3: + Bayesian (Baseline Head)        32.39%     29.38%            N/A  +2.81% / +6.47%
+Stage 2 (Disorder Subtypes)       S4: Wider Head + CDA + Bayesian       39.44%     35.61%            N/A  <-- NEW BEST S2
+--------------------------------------------------------------------------------------------------------
+[Ref] Original fixed-LR scripts (train_stage2_disorder.py, train_stage2_augmented.py):
+Stage 2 (Disorder Subtypes)       Baseline AAFF fixed lr=1e-3           33.80%     30.20%            N/A  <- original script
+Stage 2 (Disorder Subtypes)       SMOTE + Wider Head                    33.80%     30.30%            N/A  <- SMOTE hurts
+Stage 2 (Disorder Subtypes)       Wider Head Only (No SMOTE)            36.62%     32.57%            N/A
+Stage 2 (Disorder Subtypes)       CDA Augmented AAFF (original)         38.03%     33.87%            N/A
 --------------------------------------------------------------------------------------------------------
 End-to-End Hierarchical           Baseline S1 + Baseline S2             61.54%     39.80%            N/A
 End-to-End Hierarchical           Stage 1 AAFF + Augmented Stage 2      62.72%     41.26%            N/A  <-- BEST E2E
@@ -294,7 +308,39 @@ End-to-End Hierarchical           Stage 1 AAFF + Augmented Stage 2      62.72%  
 
 ---
 
-## 5. How to Replicate and Run the Experiments
+## 5. Stage 2 Incremental Ablation — Full Results
+
+Run script: [`run_stage2_incremental_ablation.py`](file:///c:/Users/91918/Desktop/Engineering/ENGINEERING%20S7/Research%20Code/Research/run_stage2_incremental_ablation.py)
+
+Each stage stacks one new technique on top of Model C, evaluated on the same held-out 71-sample test set.
+
+| Stage | Configuration | Test Acc | Test Macro F1 | Δ Acc | Δ F1 | Key Change |
+| :---: | :--- | :---: | :---: | :---: | :---: | :--- |
+| **S0** | Baseline AAFF (in→256→4, lr sweep) | 29.58% | 22.91% | — | — | Reference point |
+| **S1** | + Wider Head (in→512→256→4) | 36.62% | 32.57% | **+7.04%** | **+9.66%** | 2-layer head + dropout 0.35 |
+| **S2** | + CDA Pitch Augmentation | 33.80% | 30.40% | +4.22% | +7.49% | Gender-stratified pitch shift (630 train) |
+| **S3** | + Bayesian Search (baseline head) | 32.39% | 29.38% | +2.81% | +6.47% | Optuna TPE on 1-layer head |
+| **S4** | **Wider Head + CDA + Bayesian** | **39.44%** | **35.61%** | **+9.86%** | **+12.70%** | All three combined — **NEW BEST** |
+
+> **Key insight:** CDA and Bayesian search individually underperform the wider head alone (S2 = 33.80%, S3 = 32.39% vs S1 = 36.62%). However, combining **all three** (S4) achieves the best result by a large margin — **39.44% accuracy / 35.61% F1** — confirming strong synergy between architectural capacity, data diversity, and hyperparameter optimization.
+
+**Bayesian Optimal Hyperparameters (Stage 4 — Wider Head + CDA):**
+- `lr = 1.747e-3`  |  `weight_decay = 2.243e-4`  |  `dropout = 0.10`  |  `batch_size = 8`
+
+**Note on S0 vs. original baseline:** The original `train_stage2_disorder.py` used a fixed `lr=1e-3` and yielded 33.80% test accuracy. The ablation S0 uses val-F1-selected LR from a sweep, picking `lr=3e-4` (better val) which generalizes worse to test (29.58%). This highlights test-set variance and motivates the Bayesian cross-validation approach in S3/S4.
+
+**Plots:**
+- [`stage2_incremental_ablation_combined.png`](file:///c:/Users/91918/Desktop/Engineering/ENGINEERING%20S7/Research%20Code/Research/stage2_incremental_ablation_combined.png) — Line trend + grouped bars + delta chart
+- [`stage2_incremental_ablation_accuracy.png`](file:///c:/Users/91918/Desktop/Engineering/ENGINEERING%20S7/Research%20Code/Research/stage2_incremental_ablation_accuracy.png)
+- [`stage2_incremental_ablation_f1.png`](file:///c:/Users/91918/Desktop/Engineering/ENGINEERING%20S7/Research%20Code/Research/stage2_incremental_ablation_f1.png)
+
+```powershell
+python run_stage2_incremental_ablation.py --n_trials 25 --trial_epochs 25 --final_epochs 60
+```
+
+---
+
+## 6. How to Replicate and Run the Experiments
 
 All experiments are script-driven and deterministic. Run the commands below from the `Research/` directory:
 
